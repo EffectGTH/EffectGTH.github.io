@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Безопасность учётных записей в социальных сетях</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+    <div class="hero">
+        <h1>Безопасность учётных записей в социальных сетях</h1>
+        <div class="hero-badge">Социальные сети • Мессенджеры • Приватность</div>
+    </div>
+
+    <div class="instruction-card">
+        <h2>Руководство по использованию</h2>
+        <div class="steps-grid">
+            <div class="step-item"><span class="step-num">1</span> Ознакомьтесь с разделами ниже</div>
+            <div class="step-item"><span class="step-num">2</span> Нажмите на блоки с символом «+» для выбора платформы</div>
+            <div class="step-item"><span class="step-num">3</span> Перейдите на страницу раздела для получения подробной информации</div>
+        </div>
+    </div>
+
+    <div class="sections-header">
+        <span class="sections-title">Разделы по безопасности</span>
+    </div>
+    <div class="sections-grid" id="accordionRoot">
+        <div class="section-card">
+            <div class="section-header">
+                <div class="left-header">
+                    <span class="num-badge">1</span>
+                    <span>Надёжный пароль</span>
+                </div>
+                <span class="toggle-icon" style="opacity:0.5;">—</span>
+            </div>
+            <div class="simple-content">
+                <a href="pages/password.html" class="section-link">Перейти к инструкции →</a>
+            </div>
+        </div>
+
+        <div class="section-card" id="section2">
+            <div class="section-header">
+                <div class="left-header">
+                    <span class="num-badge">2</span>
+                    <span>Двухфакторная аутентификация (2FA)</span>
+                </div>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="submenu">
+                <div class="submenu-content" id="submenu-2fa"></div>
+            </div>
+        </div>
+
+        <div class="section-card" id="section3">
+            <div class="section-header">
+                <div class="left-header">
+                    <span class="num-badge">3</span>
+                    <span>Приватность профиля</span>
+                </div>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="submenu">
+                <div class="submenu-content" id="submenu-privacy"></div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-header">
+                <div class="left-header">
+                    <span class="num-badge">4</span>
+                    <span>Мошеннические схемы</span>
+                </div>
+                <span class="toggle-icon" style="opacity:0.5;">—</span>
+            </div>
+            <div class="simple-content">
+                <a href="pages/fraud.html" class="section-link">Подробнее о мошенниках →</a>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-header">
+                <div class="left-header">
+                    <span class="num-badge">5</span>
+                    <span>Действия при взломе аккаунта</span>
+                </div>
+                <span class="toggle-icon" style="opacity:0.5;">—</span>
+            </div>
+            <div class="simple-content">
+                <a href="pages/hacked.html" class="section-link">Инструкция при взломе →</a>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-header">
+                <div class="left-header">
+                    <span class="num-badge">6</span>
+                    <span>Об авторах</span>
+                </div>
+                <span class="toggle-icon" style="opacity:0.5;">—</span>
+            </div>
+            <div class="simple-content">
+                <a href="pages/about.html" class="section-link">Узнать о проекте →</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-note">
+        Безопасность начинается с вас. Регулярно обновляйте данные. Будьте бдительны.
+    </div>
+</div>
+
+<script>
+    const twoFALinks = {
+        telegram: { name: "Telegram", url: "pages/2fa-telegram.html" },
+        vk: { name: "VK", url: "pages/2fa-vk.html" },
+        max: { name: "Max", url: "pages/2fa-max.html" }
+    };
+    const privacyLinks = {
+        telegram: { name: "Telegram", url: "pages/privacy-telegram.html" },
+        vk: { name: "VK", url: "pages/privacy-vk.html" },
+        max: { name: "Max", url: "pages/privacy-max.html" }
+    };
+
+    function renderSubMenu2FA() {
+        const container = document.getElementById('submenu-2fa');
+        if (!container) return;
+        container.innerHTML = '';
+        ['telegram', 'vk', 'max'].forEach(key => {
+            const data = twoFALinks[key];
+            const linkDiv = document.createElement('a');
+            linkDiv.className = 'platform-link';
+            linkDiv.href = data.url;
+            linkDiv.innerHTML = `<strong>${data.name}</strong><span style="margin-left:auto; font-size:0.8rem;">подробнее →</span>`;
+            container.appendChild(linkDiv);
+        });
+    }
+
+    function renderSubMenuPrivacy() {
+        const container = document.getElementById('submenu-privacy');
+        if (!container) return;
+        container.innerHTML = '';
+        ['telegram', 'vk', 'max'].forEach(key => {
+            const data = privacyLinks[key];
+            const linkDiv = document.createElement('a');
+            linkDiv.className = 'platform-link';
+            linkDiv.href = data.url;
+            linkDiv.innerHTML = `<strong>${data.name}</strong><span style="margin-left:auto; font-size:0.8rem;">подробнее →</span>`;
+            container.appendChild(linkDiv);
+        });
+    }
+
+    function toggleSection(headerElement) {
+        const sectionCard = headerElement.closest('.section-card');
+        if (!sectionCard) return;
+        const toggleSpan = headerElement.querySelector('.toggle-icon');
+        const submenu = sectionCard.querySelector('.submenu');
+        if (!submenu) return;
+        if (sectionCard.classList.contains('active')) {
+            sectionCard.classList.remove('active');
+            if (toggleSpan) toggleSpan.textContent = '+';
+        } else {
+            document.querySelectorAll('.section-card').forEach(card => {
+                if (card !== sectionCard && card.classList.contains('active')) {
+                    card.classList.remove('active');
+                    const otherToggle = card.querySelector('.toggle-icon');
+                    if (otherToggle) otherToggle.textContent = '+';
+                }
+            });
+            sectionCard.classList.add('active');
+            if (toggleSpan) toggleSpan.textContent = '−';
+        }
+    }
+
+    function bindAccordionEvents() {
+        document.querySelectorAll('.section-card .section-header').forEach(header => {
+            header.removeEventListener('click', header._listener);
+            const handler = function(e) {
+                e.stopPropagation();
+                const parentCard = this.closest('.section-card');
+                const hasSubmenu = parentCard.querySelector('.submenu');
+                if (hasSubmenu) toggleSection(this);
+            };
+            header.addEventListener('click', handler);
+            header._listener = handler;
+        });
+    }
+
+    function init() {
+        renderSubMenu2FA();
+        renderSubMenuPrivacy();
+        bindAccordionEvents();
+    }
+    init();
+</script>
+</body>
+</html>
