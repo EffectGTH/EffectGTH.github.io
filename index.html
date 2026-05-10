@@ -26,83 +26,7 @@
         <span class="sections-title">Разделы по безопасности</span>
     </div>
     <div class="sections-grid" id="accordionRoot">
-        <div class="section-card">
-            <div class="section-header">
-                <div class="left-header">
-                    <span class="num-badge">1</span>
-                    <span>Надёжный пароль</span>
-                </div>
-                <span class="toggle-icon" style="opacity:0.5;">—</span>
-            </div>
-            <div class="simple-content">
-                <a href="password.html" class="section-link">Перейти к инструкции →</a>
-            </div>
-        </div>
-
-        <div class="section-card" id="section2">
-            <div class="section-header">
-                <div class="left-header">
-                    <span class="num-badge">2</span>
-                    <span>Двухфакторная аутентификация (2FA)</span>
-                </div>
-                <span class="toggle-icon">+</span>
-            </div>
-            <div class="submenu">
-                <div class="submenu-content" id="submenu-2fa"></div>
-            </div>
-        </div>
-
-        <div class="section-card" id="section3">
-            <div class="section-header">
-                <div class="left-header">
-                    <span class="num-badge">3</span>
-                    <span>Приватность профиля</span>
-                </div>
-                <span class="toggle-icon">+</span>
-            </div>
-            <div class="submenu">
-                <div class="submenu-content" id="submenu-privacy"></div>
-            </div>
-        </div>
-
-        <div class="section-card">
-            <div class="section-header">
-                <div class="left-header">
-                    <span class="num-badge">4</span>
-                    <span>Мошеннические схемы</span>
-                </div>
-                <span class="toggle-icon" style="opacity:0.5;">—</span>
-            </div>
-            <div class="simple-content">
-                <a href="fraud.html" class="section-link">Подробнее о мошенниках →</a>
-            </div>
-        </div>
-
-        <div class="section-card">
-            <div class="section-header">
-                <div class="left-header">
-                    <span class="num-badge">5</span>
-                    <span>Действия при взломе аккаунта</span>
-                </div>
-                <span class="toggle-icon" style="opacity:0.5;">—</span>
-            </div>
-            <div class="simple-content">
-                <a href="hacked.html" class="section-link">Инструкция при взломе →</a>
-            </div>
-        </div>
-
-        <div class="section-card">
-            <div class="section-header">
-                <div class="left-header">
-                    <span class="num-badge">6</span>
-                    <span>Об авторах</span>
-                </div>
-                <span class="toggle-icon" style="opacity:0.5;">—</span>
-            </div>
-            <div class="simple-content">
-                <a href="about.html" class="section-link">Узнать о проекте →</a>
-            </div>
-        </div>
+        <div class="loader-sections">Загрузка разделов...</div>
     </div>
     <div class="footer-note">
         Безопасность начинается с вас. Регулярно обновляйте данные. Будьте бдительны.
@@ -110,43 +34,75 @@
 </div>
 
 <script>
-    const twoFALinks = {
-        telegram: { name: "Telegram", url: "2fa-telegram.html" },
-        vk: { name: "VK", url: "2fa-vk.html" },
-        max: { name: "Max", url: "2fa-max.html" }
-    };
-    const privacyLinks = {
-        telegram: { name: "Telegram", url: "privacy-telegram.html" },
-        vk: { name: "VK", url: "privacy-vk.html" },
-        max: { name: "Max", url: "privacy-max.html" }
-    };
-
-    function renderSubMenu2FA() {
-        const container = document.getElementById('submenu-2fa');
-        if (!container) return;
-        container.innerHTML = '';
-        ['telegram', 'vk', 'max'].forEach(key => {
-            const data = twoFALinks[key];
-            const linkDiv = document.createElement('a');
-            linkDiv.className = 'platform-link';
-            linkDiv.href = data.url;
-            linkDiv.innerHTML = `<strong>${data.name}</strong><span style="margin-left:auto; font-size:0.8rem;">подробнее →</span>`;
-            container.appendChild(linkDiv);
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
         });
     }
 
-    function renderSubMenuPrivacy() {
-        const container = document.getElementById('submenu-privacy');
+    function renderSubmenu(containerId, platforms) {
+        const container = document.getElementById(containerId);
         if (!container) return;
         container.innerHTML = '';
-        ['telegram', 'vk', 'max'].forEach(key => {
-            const data = privacyLinks[key];
-            const linkDiv = document.createElement('a');
-            linkDiv.className = 'platform-link';
-            linkDiv.href = data.url;
-            linkDiv.innerHTML = `<strong>${data.name}</strong><span style="margin-left:auto; font-size:0.8rem;">подробнее →</span>`;
-            container.appendChild(linkDiv);
+        if (!platforms || platforms.length === 0) {
+            container.innerHTML = '<div class="error-msg">Нет доступных платформ</div>';
+            return;
+        }
+        platforms.forEach(platform => {
+            const link = document.createElement('a');
+            link.className = 'platform-link';
+            link.href = platform.url;
+            link.innerHTML = `<strong>${escapeHtml(platform.name)}</strong><span style="margin-left:auto; font-size:0.8rem;">подробнее →</span>`;
+            container.appendChild(link);
         });
+    }
+
+    function renderSections(sectionsData) {
+        const container = document.getElementById('accordionRoot');
+        if (!container) return;
+        container.innerHTML = '';
+
+        sectionsData.forEach((section, idx) => {
+            const sectionCard = document.createElement('div');
+            sectionCard.className = 'section-card';
+            if (section.type === 'submenu') {
+                const submenuId = `submenu-${section.id || idx}`;
+                sectionCard.innerHTML = `
+                    <div class="section-header">
+                        <div class="left-header">
+                            <span class="num-badge">${section.num}</span>
+                            <span>${escapeHtml(section.title)}</span>
+                        </div>
+                        <span class="toggle-icon">+</span>
+                    </div>
+                    <div class="submenu">
+                        <div class="submenu-content" id="${submenuId}"></div>
+                    </div>
+                `;
+                container.appendChild(sectionCard);
+                renderSubmenu(submenuId, section.platforms || []);
+            } else {
+                sectionCard.innerHTML = `
+                    <div class="section-header">
+                        <div class="left-header">
+                            <span class="num-badge">${section.num}</span>
+                            <span>${escapeHtml(section.title)}</span>
+                        </div>
+                        <span class="toggle-icon" style="opacity:0.5;">—</span>
+                    </div>
+                    <div class="simple-content">
+                        <a href="${section.link}" class="section-link">${escapeHtml(section.linkText || 'Перейти к инструкции →')}</a>
+                    </div>
+                `;
+                container.appendChild(sectionCard);
+            }
+        });
+
+        bindAccordionEvents();
     }
 
     function toggleSection(headerElement) {
@@ -173,6 +129,7 @@
 
     function bindAccordionEvents() {
         document.querySelectorAll('.section-card .section-header').forEach(header => {
+            // Убираем старые обработчики, чтобы не дублировать
             header.removeEventListener('click', header._listener);
             const handler = function(e) {
                 e.stopPropagation();
@@ -185,12 +142,30 @@
         });
     }
 
-    function init() {
-        renderSubMenu2FA();
-        renderSubMenuPrivacy();
-        bindAccordionEvents();
+    function loadAllContent() {
+        fetch('data.json')
+            .then(response => {
+                if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.sections && Array.isArray(data.sections)) {
+                    renderSections(data.sections);
+                } else {
+                    throw new Error('В data.json отсутствует массив sections');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки data.json:', error);
+                document.getElementById('accordionRoot').innerHTML = `
+                    <div class="error-msg" style="grid-column:1/-1; padding:2rem;">
+                        Не удалось загрузить разделы. Проверьте файл data.json и убедитесь, что он лежит рядом с index.html.
+                    </div>
+                `;
+            });
     }
-    init();
+
+    loadAllContent();
 </script>
 </body>
 </html>
