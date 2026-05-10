@@ -1,0 +1,11 @@
+{
+  "sections": [
+    {
+      "num": 1,
+      "title": "Надёжный пароль",
+      "type": "simple",
+      "link": "articles/password.html",
+      "linkText": "Перейти к инструкции →"
+    }
+  ]
+}
