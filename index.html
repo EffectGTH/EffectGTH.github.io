@@ -34,6 +34,7 @@
 </div>
 
 <script>
+    // ---------- Вспомогательные функции ----------
     function escapeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>]/g, function(m) {
@@ -65,6 +66,11 @@
         const container = document.getElementById('accordionRoot');
         if (!container) return;
         container.innerHTML = '';
+
+        if (!sectionsData || sectionsData.length === 0) {
+            container.innerHTML = '<div class="error-msg">Нет доступных разделов. Добавьте статьи в папку articles/</div>';
+            return;
+        }
 
         sectionsData.forEach((section, idx) => {
             const sectionCard = document.createElement('div');
@@ -129,7 +135,6 @@
 
     function bindAccordionEvents() {
         document.querySelectorAll('.section-card .section-header').forEach(header => {
-            // Убираем старые обработчики, чтобы не дублировать
             header.removeEventListener('click', header._listener);
             const handler = function(e) {
                 e.stopPropagation();
@@ -143,7 +148,10 @@
     }
 
     function loadAllContent() {
-        fetch('data.json')
+        const basePath = window.location.pathname.split('/').slice(0, -1).join('/');
+        const jsonUrl = basePath ? `${basePath}/data.json` : 'data.json';
+        
+        fetch(jsonUrl)
             .then(response => {
                 if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`);
                 return response.json();
@@ -159,12 +167,14 @@
                 console.error('Ошибка загрузки data.json:', error);
                 document.getElementById('accordionRoot').innerHTML = `
                     <div class="error-msg" style="grid-column:1/-1; padding:2rem;">
-                        Не удалось загрузить разделы. Проверьте файл data.json и убедитесь, что он лежит рядом с index.html.
+                        ⚠️ Не удалось загрузить разделы. Проверьте, что файл data.json существует.<br>
+                        <small>Ошибка: ${error.message}</small>
                     </div>
                 `;
             });
     }
 
+    // Старт
     loadAllContent();
 </script>
 </body>
