@@ -34,7 +34,6 @@
 </div>
 
 <script>
-    // ---------- Вспомогательные функции ----------
     function escapeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>]/g, function(m) {
@@ -45,38 +44,37 @@
         });
     }
 
-    function renderSubmenu(containerId, platforms) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        container.innerHTML = '';
-        if (!platforms || platforms.length === 0) {
-            container.innerHTML = '<div class="error-msg">Нет доступных платформ</div>';
-            return;
-        }
-        platforms.forEach(platform => {
-            const link = document.createElement('a');
-            link.className = 'platform-link';
-            link.href = platform.url;
-            link.innerHTML = `<strong>${escapeHtml(platform.name)}</strong><span style="margin-left:auto; font-size:0.8rem;">подробнее →</span>`;
-            container.appendChild(link);
-        });
-    }
-
-    function renderSections(sectionsData) {
+    function renderSections(sections) {
         const container = document.getElementById('accordionRoot');
         if (!container) return;
         container.innerHTML = '';
 
-        if (!sectionsData || sectionsData.length === 0) {
-            container.innerHTML = '<div class="error-msg">Нет доступных разделов. Добавьте статьи в папку articles/</div>';
+        if (!sections || sections.length === 0) {
+            container.innerHTML = '<div class="error-msg" style="padding:2rem; text-align:center;">⚠️ Нет доступных разделов. Проверьте data.json</div>';
             return;
         }
 
-        sectionsData.forEach((section, idx) => {
+        sections.forEach(section => {
             const sectionCard = document.createElement('div');
             sectionCard.className = 'section-card';
-            if (section.type === 'submenu') {
-                const submenuId = `submenu-${section.id || idx}`;
+            
+            if (section.type === 'simple') {
+                // Простой раздел с прямой ссылкой
+                sectionCard.innerHTML = `
+                    <div class="section-header">
+                        <div class="left-header">
+                            <span class="num-badge">${section.num}</span>
+                            <span>${escapeHtml(section.title)}</span>
+                        </div>
+                        <span class="toggle-icon" style="opacity:0.5;">—</span>
+                    </div>
+                    <div class="simple-content">
+                        <a href="${section.link}" class="section-link">${escapeHtml(section.linkText || 'Перейти к инструкции →')}</a>
+                    </div>
+                `;
+            } else if (section.type === 'submenu') {
+                // Подменю с платформами
+                const submenuId = `submenu-${section.num}`;
                 sectionCard.innerHTML = `
                     <div class="section-header">
                         <div class="left-header">
@@ -90,24 +88,24 @@
                     </div>
                 `;
                 container.appendChild(sectionCard);
-                renderSubmenu(submenuId, section.platforms || []);
-            } else {
-                sectionCard.innerHTML = `
-                    <div class="section-header">
-                        <div class="left-header">
-                            <span class="num-badge">${section.num}</span>
-                            <span>${escapeHtml(section.title)}</span>
-                        </div>
-                        <span class="toggle-icon" style="opacity:0.5;">—</span>
-                    </div>
-                    <div class="simple-content">
-                        <a href="${section.link}" class="section-link">${escapeHtml(section.linkText || 'Перейти к инструкции →')}</a>
-                    </div>
-                `;
-                container.appendChild(sectionCard);
+                
+                // Заполняем подменю платформами
+                const submenuContainer = document.getElementById(submenuId);
+                if (submenuContainer && section.platforms) {
+                    section.platforms.forEach(platform => {
+                        const link = document.createElement('a');
+                        link.className = 'platform-link';
+                        link.href = platform.url;
+                        link.innerHTML = `<strong>${escapeHtml(platform.name)}</strong><span style="margin-left:auto; font-size:0.8rem;">подробнее →</span>`;
+                        submenuContainer.appendChild(link);
+                    });
+                }
             }
+            
+            container.appendChild(sectionCard);
         });
 
+        // Привязываем события для аккордеона
         bindAccordionEvents();
     }
 
@@ -117,10 +115,12 @@
         const toggleSpan = headerElement.querySelector('.toggle-icon');
         const submenu = sectionCard.querySelector('.submenu');
         if (!submenu) return;
+        
         if (sectionCard.classList.contains('active')) {
             sectionCard.classList.remove('active');
             if (toggleSpan) toggleSpan.textContent = '+';
         } else {
+            // Закрываем другие открытые секции
             document.querySelectorAll('.section-card').forEach(card => {
                 if (card !== sectionCard && card.classList.contains('active')) {
                     card.classList.remove('active');
@@ -147,35 +147,38 @@
         });
     }
 
-    function loadAllContent() {
-        const basePath = window.location.pathname.split('/').slice(0, -1).join('/');
-        const jsonUrl = basePath ? `${basePath}/data.json` : 'data.json';
+    function loadSections() {
+        // Определяем путь к data.json (в корне)
+        const dataUrl = 'data.json';
         
-        fetch(jsonUrl)
+        fetch(dataUrl)
             .then(response => {
-                if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
                 return response.json();
             })
             .then(data => {
                 if (data.sections && Array.isArray(data.sections)) {
                     renderSections(data.sections);
+                    console.log('✅ Загружено разделов:', data.sections.length);
                 } else {
-                    throw new Error('В data.json отсутствует массив sections');
+                    throw new Error('В data.json нет массива sections');
                 }
             })
             .catch(error => {
-                console.error('Ошибка загрузки data.json:', error);
+                console.error('❌ Ошибка загрузки data.json:', error);
                 document.getElementById('accordionRoot').innerHTML = `
-                    <div class="error-msg" style="grid-column:1/-1; padding:2rem;">
-                        ⚠️ Не удалось загрузить разделы. Проверьте, что файл data.json существует.<br>
+                    <div class="error-msg" style="grid-column:1/-1; padding:2rem; text-align:center;">
+                        ⚠️ Не удалось загрузить разделы.<br>
                         <small>Ошибка: ${error.message}</small>
                     </div>
                 `;
             });
     }
 
-    // Старт
-    loadAllContent();
+    // Запускаем загрузку
+    loadSections();
 </script>
 </body>
 </html>
