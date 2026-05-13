@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Двухфакторная аутентификация в Telegram: пошаговая инструкция</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/style-password.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style-password.css">
     <style>
-        /* Дополнительные, специфичные для этой страницы стили */
         .step-list {
             counter-reset: step-counter;
             list-style: none;
@@ -86,14 +85,14 @@
             flex-shrink: 0;
             margin-top: 0.2rem;
         }
-        .back-link {
-            display: inline-block;
-            margin-bottom: 1rem;
+        .menu-toggle, .side-menu, .overlay {
+            z-index: 1100;
         }
-        .icon-emphasis {
-            font-size: 1.2rem;
-            margin-right: 0.3rem;
-            vertical-align: middle;
+        .side-menu a::before {
+            content: none;
+        }
+        .side-menu a {
+            padding-left: 1rem;
         }
         @media (max-width: 680px) {
             .step-list li {
@@ -110,37 +109,19 @@
 </head>
 <body>
 
-<!-- Кнопка открытия выдвижного меню (такая же, как на странице паролей) -->
 <div class="menu-toggle" id="menuToggle">
     <span></span>
 </div>
 <div class="overlay" id="overlay"></div>
 <div class="side-menu" id="sideMenu">
     <button class="close-menu" id="closeMenuBtn">✕</button>
-    <h4 style="margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--accent-dark);">Разделы по безопасности</h4>
-    <div style="margin-bottom: 0.8rem;">
-        <strong style="display: block; padding: 0.3rem 1rem; background: rgba(44,122,110,0.1); border-radius: 2rem;">Надёжный пароль</strong>
-        <a href="password.html" style="padding-left: 1.8rem;">Инструкция</a>
+    <div id="sideMenuContent">
+        <div class="loader-sections">Загрузка разделов...</div>
     </div>
-    <div style="margin-bottom: 0.6rem;">
-        <strong style="display: block; padding: 0.3rem 1rem;">Двухфакторная аутентификация</strong>
-        <a href="2fa-telegram.html" style="padding-left: 1.8rem;">Telegram (текущая)</a>
-        <a href="2fa-vk.html" style="padding-left: 1.8rem;">VK</a>
-        <a href="2fa-max.html" style="padding-left: 1.8rem;">МАХ</a>
-    </div>
-    <div style="margin-bottom: 0.6rem;">
-        <strong style="display: block; padding: 0.3rem 1rem;">Приватность профиля</strong>
-        <a href="privacy-telegram.html" style="padding-left: 1.8rem;">Telegram</a>
-        <a href="privacy-vk.html" style="padding-left: 1.8rem;">VK</a>
-        <a href="privacy-max.html" style="padding-left: 1.8rem;">МАХ</a>
-    </div>
-    <a href="fraud.html">Мошеннические схемы</a>
-    <a href="hacked.html">Действия при взломе аккаунта</a>
-    <a href="about.html">Об авторах</a>
 </div>
 
 <div class="container">
-    <a href="index.html" class="back-button">← На главную</a>
+    <a href="../index.html" class="back-button">← На главную</a>
 
     <div class="hero">
         <h1 class="page-title">Двухфакторная аутентификация в Telegram</h1>
@@ -148,25 +129,22 @@
         <div class="subhead">Как включить дополнительную защиту, чтобы мошенники не смогли войти в ваш аккаунт, даже если узнают SMS-код</div>
     </div>
 
-    <!-- Основной контент -->    
     <div class="general-tips" style="margin-bottom: 1.5rem;">
         <h3>Что такое двухфакторная аутентификация (2FA) в Telegram?</h3>
         <p>Telegram использует номер телефона и SMS-код для входа. Но если злоумышленники смогут перехватить SMS или украсть SIM-карту, они получат доступ к вашему аккаунту. <strong>Двухэтапная аутентификация (облачный пароль)</strong> добавляет второй уровень защиты: после ввода кода из SMS система попросит ввести дополнительный пароль, который знаете только вы.</p>
         <div class="info-note">
-            <span class="icon-emphasis">🔐</span> <strong>Важно:</strong> Облачный пароль также защищает ваши секретные чаты и данные, хранящиеся в облаке Telegram. Без него мошенники могут получить доступ к вашим перепискам после взлома SMS.
+            <span style="font-size:1.2rem; margin-right:0.3rem;">🔐</span> <strong>Важно:</strong> Облачный пароль также защищает ваши секретные чаты и данные, хранящиеся в облаке Telegram.
         </div>
     </div>
 
-    <!-- Пошаговая инструкция -->
     <div class="password-card">
         <div class="card-header">
             <span style="font-size: 1.8rem;">✈️</span>
             <h3>Пошаговая инструкция: как включить облачный пароль в Telegram</h3>
         </div>
         <div class="card-body">
-            <!-- Скриншот-заглушка для телефона -->
-            <div class="screenshot-placeholder" id="screenshot-tg-2fa-placeholder">
-                📱 Скриншот: Настройки → Конфиденциальность → Облачный пароль (пример интерфейса)
+            <div class="screenshot-placeholder">
+                📱 Скриншот: Настройки → Конфиденциальность → Облачный пароль
             </div>
             
             <ul class="step-list">
@@ -176,26 +154,25 @@
                 <li>Прокрутите вниз до раздела <strong>«Безопасность»</strong> и нажмите <strong>«Двухэтапная аутентификация»</strong> (в некоторых версиях — «Облачный пароль»).</li>
                 <li>Нажмите <strong>«Задать пароль»</strong>.</li>
                 <li><strong>Придумайте надёжный пароль</strong> (не менее 8 символов, лучше комбинация букв, цифр и спецсимволов). Пример: <span class="example-pass" style="font-size:0.85rem;">Gr3!7#kL9@qW</span></li>
-                <li><strong>Добавьте подсказку</strong> на случай, если забудете пароль. Подсказка не должна содержать сам пароль.</li>
-                <li><strong>Самое важное:</strong> обязательно укажите <strong>адрес электронной почты</strong> для восстановления. Если вы забудете пароль, Telegram сможет отправить вам ссылку для его сброса.</li>
-                <li>Нажмите <strong>«Готово»</strong> или «Сохранить». Готово! Теперь при входе в Telegram с нового устройства потребуется ввести облачный пароль после SMS-кода.</li>
+                <li><strong>Добавьте подсказку</strong> на случай, если забудете пароль.</li>
+                <li><strong>Обязательно укажите адрес электронной почты</strong> для восстановления.</li>
+                <li>Нажмите <strong>«Готово»</strong> или «Сохранить».</li>
             </ul>
 
             <div class="warning-note">
-                <span class="icon-emphasis">⚠️</span> <strong>Внимание, пожилым пользователям:</strong> Запишите пароль и адрес электронной почты на бумажку и храните в надёжном месте. Если вы потеряете доступ к почте и забудете пароль — восстановить аккаунт будет очень сложно!
+                <span style="font-size:1.2rem; margin-right:0.3rem;">⚠️</span> <strong>Внимание:</strong> Запишите пароль и адрес электронной почты на бумажку и храните в надёжном месте. Если вы потеряете доступ к почте и забудете пароль — восстановить аккаунт будет очень сложно!
             </div>
 
             <div class="success-note">
-                <span class="icon-emphasis">✅</span> <strong>Совет:</strong> После включения 2FA Telegram предложит вам сохранить <strong>резервные коды</strong> на случай утери телефона. Обязательно сохраните их (например, сделайте скриншот или запишите в блокнот).
+                <span style="font-size:1.2rem; margin-right:0.3rem;">✅</span> <strong>Совет:</strong> После включения 2FA Telegram предложит вам сохранить <strong>резервные коды</strong>. Обязательно сохраните их.
             </div>
 
             <div class="source-link" style="margin-top: 1.5rem;">
-                📘 Официальный источник Telegram: <a href="https://telegram.org/faq#q-what-is-two-step-verification" target="_blank" rel="noopener noreferrer">Что такое двухэтапная аутентификация?</a>
+                📘 Официальный источник Telegram: <a href="https://telegram.org/faq#q-what-is-two-step-verification" target="_blank">Что такое двухэтапная аутентификация?</a>
             </div>
         </div>
     </div>
 
-    <!-- Чек-лист для самопроверки -->
     <div class="password-card">
         <div class="card-header">
             <span style="font-size: 1.8rem;">✅</span>
@@ -203,48 +180,36 @@
         </div>
         <div class="card-body">
             <ul class="checklist-simple" id="tg-2fa-checklist">
-                <li><input type="checkbox" id="check1"> <label for="check1">Я установил(а) облачный пароль длиной от 8 символов (цифры, буквы, спецсимволы)</label></li>
-                <li><input type="checkbox" id="check2"> <label for="check2">Я добавил(а) понятную подсказку, которая поможет вспомнить пароль</label></li>
+                <li><input type="checkbox" id="check1"> <label for="check1">Я установил(а) облачный пароль длиной от 8 символов</label></li>
+                <li><input type="checkbox" id="check2"> <label for="check2">Я добавил(а) понятную подсказку</label></li>
                 <li><input type="checkbox" id="check3"> <label for="check3">Я указал(а) рабочий адрес электронной почты для восстановления</label></li>
-                <li><input type="checkbox" id="check4"> <label for="check4">Я записал(а) пароль и адрес почты на бумаге и храню в надёжном месте</label></li>
-                <li><input type="checkbox" id="check5"> <label for="check5">Я сохранил(а) резервные коды (если Telegram их предложил)</label></li>
-                <li><input type="checkbox" id="check6"> <label for="check6">Я проверил(а), что пароль работает — вышли из аккаунта и зашли заново (по желанию)</label></li>
+                <li><input type="checkbox" id="check4"> <label for="check4">Я записал(а) пароль и адрес почты на бумаге</label></li>
+                <li><input type="checkbox" id="check5"> <label for="check5">Я сохранил(а) резервные коды</label></li>
             </ul>
             <div style="margin-top: 0.8rem;">
-                <button id="resetTgChecklist" class="reset-checklist" style="background:none;">Сбросить все отметки</button>
+                <button id="resetTgChecklist" class="reset-checklist">Сбросить все отметки</button>
             </div>
         </div>
     </div>
 
-    <!-- Дополнительные советы -->
     <div class="general-tips" style="border-left: 6px solid var(--accent-teal);">
         <h3>Часто задаваемые вопросы</h3>
-        <p><strong>❓ Что делать, если я забыл облачный пароль, но указал почту?</strong><br>
-        Telegram отправит на вашу почту ссылку для сброса пароля. Нажмите на неё и задайте новый пароль.</p>
-        <p><strong>❓ Что делать, если я забыл пароль и не указал почту?</strong><br>
-        В этом случае восстановить доступ почти невозможно. Telegram не может сбросить пароль без почты по соображениям безопасности. Поэтому указывать почту — обязательно!</p>
-        <p><strong>❓ Нужно ли вводить облачный пароль при каждом входе?</strong><br>
-        Нет, только при входе на новое устройство. Telegram запоминает ваши доверенные устройства.</p>
-        <p><strong>❓ Могу ли я отключить облачный пароль?</strong><br>
-        Да, в тех же настройках «Двухэтапная аутентификация» можно нажать «Отключить».</p>
+        <p><strong>❓ Что делать, если я забыл облачный пароль, но указал почту?</strong><br>Telegram отправит на вашу почту ссылку для сброса пароля.</p>
+        <p><strong>❓ Что делать, если я забыл пароль и не указал почту?</strong><br>Восстановить доступ почти невозможно. Поэтому указывать почту — обязательно!</p>
+        <p><strong>❓ Нужно ли вводить облачный пароль при каждом входе?</strong><br>Нет, только при входе на новое устройство.</p>
     </div>
 
-    <div class="footer-note">
-        🔒 Безопасность в Telegram начинается с вас. Включите облачный пароль уже сегодня — это займёт всего 2 минуты, но защитит ваши данные от взлома.
-    </div>
+    <div class="footer-note">🔒 Безопасность в Telegram начинается с вас. Включите облачный пароль уже сегодня — это займёт всего 2 минуты.</div>
 </div>
 
 <script>
-    // Сохранение состояния чек-листа в localStorage
     (function() {
         const checkboxes = document.querySelectorAll('#tg-2fa-checklist input[type="checkbox"]');
         const resetBtn = document.getElementById('resetTgChecklist');
 
         function saveChecklistState() {
             const states = {};
-            checkboxes.forEach(cb => {
-                states[cb.id] = cb.checked;
-            });
+            checkboxes.forEach(cb => { states[cb.id] = cb.checked; });
             localStorage.setItem('tg_2fa_checklist', JSON.stringify(states));
         }
 
@@ -253,30 +218,83 @@
             if (saved) {
                 try {
                     const states = JSON.parse(saved);
-                    checkboxes.forEach(cb => {
-                        if (states.hasOwnProperty(cb.id)) {
-                            cb.checked = states[cb.id];
-                        }
-                    });
+                    checkboxes.forEach(cb => { if (states[cb.id]) cb.checked = states[cb.id]; });
                 } catch(e) {}
             }
         }
 
         function resetChecklist() {
-            checkboxes.forEach(cb => {
-                cb.checked = false;
-            });
+            checkboxes.forEach(cb => cb.checked = false);
             saveChecklistState();
         }
 
-        checkboxes.forEach(cb => {
-            cb.addEventListener('change', saveChecklistState);
-        });
-        resetBtn.addEventListener('click', resetChecklist);
+        checkboxes.forEach(cb => cb.addEventListener('change', saveChecklistState));
+        if (resetBtn) resetBtn.addEventListener('click', resetChecklist);
         loadChecklistState();
     })();
 
-    // Логика выдвижного меню (такая же, как на странице паролей)
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function renderSideMenu(sections, currentPage) {
+        const container = document.getElementById('sideMenuContent');
+        if (!container) return;
+        if (!sections || sections.length === 0) {
+            container.innerHTML = '<div class="error-msg">Нет доступных разделов</div>';
+            return;
+        }
+
+        let html = '<h4 style="margin-top: 0; margin-bottom: 0.8rem; color: var(--accent-dark);">Разделы по безопасности</h4>';
+        
+        sections.forEach(section => {
+            if (section.type === 'simple') {
+                const isCurrent = section.link === currentPage;
+                html += `
+                    <div style="margin-bottom: 0.6rem;">
+                        <strong style="display: block; padding: 0.3rem 1rem; background: ${isCurrent ? 'rgba(44,122,110,0.1)' : 'transparent'}; border-radius: 2rem;">${escapeHtml(section.title)}</strong>
+                        <a href="${section.link}" style="padding-left: 1.8rem;">${isCurrent ? 'Текущая страница' : (section.linkText || 'Перейти →')}</a>
+                    </div>
+                `;
+            } else if (section.type === 'submenu' && section.platforms) {
+                html += `
+                    <div style="margin-bottom: 0.6rem;">
+                        <strong style="display: block; padding: 0.3rem 1rem;">${escapeHtml(section.title)}</strong>
+                        ${section.platforms.map(p => `<a href="${p.url}" style="padding-left: 1.8rem;">${escapeHtml(p.name)}</a>`).join('')}
+                    </div>
+                `;
+            }
+        });
+        
+        container.innerHTML = html;
+    }
+
+    function loadSideMenu() {
+        const currentPage = '2fa-telegram.html';
+        fetch('../data.json')
+            .then(response => {
+                if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.sections && Array.isArray(data.sections)) {
+                    renderSideMenu(data.sections, currentPage);
+                } else {
+                    throw new Error('В data.json отсутствует массив sections');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки data.json:', error);
+                document.getElementById('sideMenuContent').innerHTML = `<div class="error-msg">⚠️ Не удалось загрузить разделы.<br><small>${error.message}</small></div>`;
+            });
+    }
+
     (function() {
         const menuToggle = document.getElementById('menuToggle');
         const sideMenu = document.getElementById('sideMenu');
@@ -288,6 +306,8 @@
         if (closeBtn) closeBtn.addEventListener('click', closeMenu);
         if (overlay) overlay.addEventListener('click', closeMenu);
     })();
+
+    loadSideMenu();
 </script>
 </body>
 </html>
