@@ -8,103 +8,209 @@ function extractTitle(filePath, fileName) {
     try {
         const content = fs.readFileSync(filePath, 'utf8');
         const titleMatch = content.match(/<title>(.*?)<\/title>/i);
-        if (titleMatch) return titleMatch[1];
+        if (titleMatch) return titleMatch[1].trim();
         return fileName.replace(/\.html$/, '').replace(/-/g, ' ');
     } catch (err) {
         return fileName.replace(/\.html$/, '').replace(/-/g, ' ');
     }
 }
 
-function getCategory(fileName) {
-    if (fileName.includes('2fa') || fileName.includes('2fa-')) return '2fa';
-    if (fileName.includes('privacy')) return 'privacy';
-    if (fileName.includes('password')) return 'password';
-    return 'other';
+function detectCategory(fileName, title) {
+    const lowerName = fileName.toLowerCase();
+    const lowerTitle = title.toLowerCase();
+    
+    // Определяем категорию по ключевым словам в имени файла или заголовке
+    if (lowerName.includes('password') || lowerTitle.includes('пароль')) {
+        return { main: 'password', name: 'Надёжный пароль', type: 'simple' };
+    }
+    
+    if (lowerName.includes('2fa') || lowerName.includes('twofactor') || 
+        lowerTitle.includes('двухфактор')) {
+        // Определяем платформу для подменю
+        let platform = '';
+        if (lowerName.includes('telegram') || lowerTitle.includes('telegram')) platform = 'Telegram';
+        else if (lowerName.includes('vk') || lowerTitle.includes('вконтакте')) platform = 'VK';
+        else if (lowerName.includes('max') || lowerTitle.includes('мах')) platform = 'МАХ';
+        else platform = title;
+        
+        return { main: '2fa', name: platform, type: 'submenu', group: 'Двухфакторная аутентификация' };
+    }
+    
+    if (lowerName.includes('privacy') || lowerTitle.includes('приватн')) {
+        let platform = '';
+        if (lowerName.includes('telegram') || lowerTitle.includes('telegram')) platform = 'Telegram';
+        else if (lowerName.includes('vk') || lowerTitle.includes('вконтакте')) platform = 'VK';
+        else if (lowerName.includes('max') || lowerTitle.includes('мах')) platform = 'МАХ';
+        else platform = title;
+        
+        return { main: 'privacy', name: platform, type: 'submenu', group: 'Приватность профиля' };
+    }
+    
+    if (lowerName.includes('fraud') || lowerTitle.includes('мошен')) {
+        return { main: 'fraud', name: 'Мошеннические схемы', type: 'simple' };
+    }
+    
+    if (lowerName.includes('hacked') || lowerTitle.includes('взлом')) {
+        return { main: 'hacked', name: 'Действия при взломе аккаунта', type: 'simple' };
+    }
+    
+    if (lowerName.includes('about') || lowerTitle.includes('автор')) {
+        return { main: 'about', name: 'Об авторах', type: 'simple' };
+    }
+    
+    // Если не определилось - создаём отдельную категорию на основе первой части имени файла
+    const firstPart = lowerName.split('-')[0];
+    if (firstPart && firstPart !== fileName) {
+        return { main: firstPart, name: title, type: 'simple' };
+    }
+    
+    // Совсем неопределённые файлы
+    return { main: 'other', name: title, type: 'simple' };
 }
 
 function scanArticles() {
     if (!fs.existsSync(articlesDir)) {
         fs.mkdirSync(articlesDir, { recursive: true });
-        console.log('Создана папка articles');
-        return { twoFA: [], privacy: [], password: [], other: [] };
+        console.log('📁 Создана папка articles');
+        return { simpleSections: [], submenuGroups: {} };
     }
 
     const files = fs.readdirSync(articlesDir);
     const htmlFiles = files.filter(f => f.endsWith('.html'));
     
-    const articles = {
-        twoFA: [],
-        privacy: [],
-        password: [],
-        other: []
-    };
+    console.log(`📁 Папка articles: ${articlesDir}`);
+    console.log(`📄 Найдено HTML файлов: ${htmlFiles.length}\n`);
+    
+    const simpleItems = [];
+    const submenuItems = {};
     
     htmlFiles.forEach(file => {
         const filePath = path.join(articlesDir, file);
         const title = extractTitle(filePath, file);
-        const category = getCategory(file);
+        const category = detectCategory(file, title);
         
-        articles[category].push({
-            name: title,
-            url: `articles/${file}`
-        });
+        console.log(`📄 ${file}`);
+        console.log(`   Заголовок: ${title}`);
+        console.log(`   Категория: ${category.main}`);
+        
+        if (category.type === 'simple') {
+            simpleItems.push({
+                id: category.main,
+                title: category.name,
+                originalTitle: title,
+                url: `articles/${file}`,
+                linkText: 'Подробнее →'
+            });
+            console.log(`   → Добавлен в простые разделы как "${category.name}"`);
+        } else if (category.type === 'submenu') {
+            if (!submenuItems[category.main]) {
+                submenuItems[category.main] = {
+                    title: category.group,
+                    platforms: []
+                };
+            }
+            submenuItems[category.main].platforms.push({
+                name: category.name,
+                url: `articles/${file}`
+            });
+            console.log(`   → Добавлен в подменю "${category.group}" как "${category.name}"`);
+        }
+        console.log('');
     });
     
-    return articles;
+    // Преобразуем simpleItems в sections (группируем по id)
+    const simpleSections = [];
+    const processedIds = new Set();
+    
+    simpleItems.forEach(item => {
+        if (!processedIds.has(item.id)) {
+            processedIds.add(item.id);
+            simpleSections.push({
+                id: item.id,
+                title: item.title,
+                url: item.url,
+                linkText: item.linkText
+            });
+        }
+    });
+    
+    return { simpleSections, submenuItems };
 }
 
 function generate() {
-    console.log('🔍 Сканирование папки articles...');
-    const articles = scanArticles();
+    console.log('🚀 Запуск генерации data.json\n');
+    console.log('🔍 Сканирование папки articles...\n');
+    
+    const { simpleSections, submenuItems } = scanArticles();
     
     const sections = [];
     let num = 1;
     
-    if (articles.password.length > 0) {
+    // Определяем порядок разделов
+    const orderPriority = {
+        'password': 1,
+        'fraud': 2,
+        'hacked': 3,
+        'about': 4
+    };
+    
+    // Сортируем простые разделы по приоритету
+    const sortedSimple = [...simpleSections].sort((a, b) => {
+        const priorityA = orderPriority[a.id] || 999;
+        const priorityB = orderPriority[b.id] || 999;
+        return priorityA - priorityB;
+    });
+    
+    // Добавляем простые разделы
+    sortedSimple.forEach(section => {
         sections.push({
             num: num++,
-            title: "Надёжный пароль",
+            title: section.title,
             type: "simple",
-            link: articles.password[0].url,
-            linkText: "Перейти к инструкции →"
+            link: section.url,
+            linkText: section.linkText
         });
+        console.log(`✅ Добавлен раздел: ${num-1}. ${section.title} → ${section.url}`);
+    });
+    
+    // Добавляем подменю
+    const submenuOrder = ['2fa', 'privacy'];
+    for (const key of submenuOrder) {
+        if (submenuItems[key] && submenuItems[key].platforms.length > 0) {
+            sections.push({
+                num: num++,
+                title: submenuItems[key].title,
+                type: "submenu",
+                platforms: submenuItems[key].platforms
+            });
+            console.log(`✅ Добавлено подменю: ${num-1}. ${submenuItems[key].title} (${submenuItems[key].platforms.length} платформ)`);
+        }
     }
     
-    if (articles.twoFA.length > 0) {
-        sections.push({
-            num: num++,
-            title: "Двухфакторная аутентификация (2FA)",
-            type: "submenu",
-            id: "fa2",
-            platforms: articles.twoFA
-        });
-    }
-    
-    if (articles.privacy.length > 0) {
-        sections.push({
-            num: num++,
-            title: "Приватность профиля",
-            type: "submenu",
-            id: "privacy",
-            platforms: articles.privacy
-        });
-    }
-    
-    if (articles.other.length > 0) {
-        sections.push({
-            num: num++,
-            title: "Другие статьи",
-            type: "submenu",
-            id: "other",
-            platforms: articles.other
-        });
+    // Добавляем любые другие подменю, которые могли появиться
+    for (const key in submenuItems) {
+        if (key !== '2fa' && key !== 'privacy' && submenuItems[key].platforms.length > 0) {
+            sections.push({
+                num: num++,
+                title: submenuItems[key].title,
+                type: "submenu",
+                platforms: submenuItems[key].platforms
+            });
+            console.log(`✅ Добавлено подменю: ${num-1}. ${submenuItems[key].title} (${submenuItems[key].platforms.length} платформ)`);
+        }
     }
     
     const output = { sections };
     fs.writeFileSync(outputFile, JSON.stringify(output, null, 2));
     
-    const total = articles.twoFA.length + articles.privacy.length + articles.password.length + articles.other.length;
-    console.log(`Сгенерирован data.json (${total} статей, ${sections.length} разделов)`);
+    console.log(`\n📄 data.json сохранён в: ${outputFile}`);
+    console.log(`\n📊 ИТОГОВАЯ СТАТИСТИКА:`);
+    console.log(`   - Всего HTML файлов в папке articles: ${simpleSections.reduce((sum, s) => sum + 1, 0) + Object.values(submenuItems).reduce((sum, item) => sum + item.platforms.length, 0)}`);
+    console.log(`   - Всего разделов в меню: ${sections.length}`);
+    console.log(`   - Простых разделов: ${sections.filter(s => s.type === 'simple').length}`);
+    console.log(`   - Подменю: ${sections.filter(s => s.type === 'submenu').length}`);
+    console.log(`\n✨ Готово! Теперь index.html загрузит все эти разделы.`);
 }
 
+// Запуск
 generate();
