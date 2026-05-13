@@ -5,7 +5,18 @@
       "title": "Надёжный пароль",
       "type": "simple",
       "link": "articles/password.html",
-      "linkText": "Перейти к инструкции →"
+      "linkText": "Подробнее →"
+    },
+    {
+      "num": 2,
+      "title": "Двухфакторная аутентификация",
+      "type": "submenu",
+      "platforms": [
+        {
+          "name": "Telegram",
+          "url": "articles/2fa-telegram.html"
+        }
+      ]
     }
   ]
 }
