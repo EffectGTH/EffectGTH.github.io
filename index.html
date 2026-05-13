@@ -44,13 +44,30 @@
         });
     }
 
+    function renderSubmenu(containerId, platforms) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = '';
+        if (!platforms || platforms.length === 0) {
+            container.innerHTML = '<div class="error-msg">Нет доступных платформ</div>';
+            return;
+        }
+        platforms.forEach(platform => {
+            const link = document.createElement('a');
+            link.className = 'platform-link';
+            link.href = platform.url;
+            link.innerHTML = `<strong>${escapeHtml(platform.name)}</strong><span style="margin-left:auto; font-size:0.8rem;">подробнее →</span>`;
+            container.appendChild(link);
+        });
+    }
+
     function renderSections(sections) {
         const container = document.getElementById('accordionRoot');
         if (!container) return;
         container.innerHTML = '';
 
         if (!sections || sections.length === 0) {
-            container.innerHTML = '<div class="error-msg" style="padding:2rem; text-align:center;">⚠️ Нет доступных разделов. Проверьте data.json</div>';
+            container.innerHTML = '<div class="error-msg" style="grid-column:1/-1; padding:2rem; text-align:center;">⚠️ Нет доступных разделов. Проверьте data.json</div>';
             return;
         }
 
@@ -72,9 +89,11 @@
                         <a href="${section.link}" class="section-link">${escapeHtml(section.linkText || 'Перейти к инструкции →')}</a>
                     </div>
                 `;
-            } else if (section.type === 'submenu') {
+                container.appendChild(sectionCard);
+            } 
+            else if (section.type === 'submenu') {
                 // Подменю с платформами
-                const submenuId = `submenu-${section.num}`;
+                const submenuId = `submenu-${section.num}-${Date.now()}-${Math.random()}`;
                 sectionCard.innerHTML = `
                     <div class="section-header">
                         <div class="left-header">
@@ -90,19 +109,10 @@
                 container.appendChild(sectionCard);
                 
                 // Заполняем подменю платформами
-                const submenuContainer = document.getElementById(submenuId);
-                if (submenuContainer && section.platforms) {
-                    section.platforms.forEach(platform => {
-                        const link = document.createElement('a');
-                        link.className = 'platform-link';
-                        link.href = platform.url;
-                        link.innerHTML = `<strong>${escapeHtml(platform.name)}</strong><span style="margin-left:auto; font-size:0.8rem;">подробнее →</span>`;
-                        submenuContainer.appendChild(link);
-                    });
+                if (section.platforms && section.platforms.length > 0) {
+                    renderSubmenu(submenuId, section.platforms);
                 }
             }
-            
-            container.appendChild(sectionCard);
         });
 
         // Привязываем события для аккордеона
@@ -148,7 +158,6 @@
     }
 
     function loadSections() {
-        // Определяем путь к data.json (в корне)
         const dataUrl = 'data.json';
         
         fetch(dataUrl)
@@ -162,6 +171,10 @@
                 if (data.sections && Array.isArray(data.sections)) {
                     renderSections(data.sections);
                     console.log('✅ Загружено разделов:', data.sections.length);
+                    // Выводим типы разделов для отладки
+                    data.sections.forEach((s, i) => {
+                        console.log(`   Раздел ${i+1}: ${s.title} (тип: ${s.type})`);
+                    });
                 } else {
                     throw new Error('В data.json нет массива sections');
                 }
