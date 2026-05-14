@@ -68,6 +68,13 @@
         .btn-secondary:hover {
             background: #5a6268;
         }
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        .btn-warning:hover {
+            background: #d97706;
+        }
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -222,6 +229,14 @@
             padding: 2rem;
             color: #666;
         }
+        .token-warning {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 0.5rem;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
         @media (max-width: 768px) {
             .admin-container { padding: 1rem; }
             .articles-header, .article-row {
@@ -241,12 +256,17 @@
             <div class="btn-group">
                 <button class="btn btn-primary" onclick="refreshArticles()">Обновить</button>
                 <button class="btn btn-primary" onclick="createNewArticle()">Новая статья</button>
-                <button class="btn btn-secondary" onclick="generateDataJson()">Сгенерировать data.json</button>
+                <button class="btn btn-warning" onclick="runGenerator()">Запустить генератор</button>
+                <button class="btn btn-secondary" onclick="showTokenSettings()">Настройки токена</button>
                 <button class="btn btn-danger" onclick="logout()">Выйти</button>
             </div>
         </div>
 
-        <div class="stats" id="stats">
+        <div id="tokenWarning" class="token-warning" style="display: none;">
+            GitHub токен не настроен. Нажмите "Настройки токена" для ввода.
+        </div>
+
+        <div class="stats">
             <div class="stat-card">
                 <div class="stat-number" id="totalArticles">0</div>
                 <div class="stat-label">Всего статей</div>
@@ -277,20 +297,39 @@
                 <span class="close-modal" onclick="closeModal()">&times;</span>
             </div>
             <div class="form-group">
-                <label>Заголовок статьи (будет отображаться на странице):</label>
+                <label>Заголовок статьи</label>
                 <input type="text" id="articleTitle" placeholder="Заголовок статьи">
             </div>
             <div class="form-group">
-                <label>Имя файла (например: 2fa-telegram.html):</label>
+                <label>Имя файла (например: 2fa-telegram.html)</label>
                 <input type="text" id="articleFilename" placeholder="filename.html">
             </div>
             <div class="form-group">
-                <label>HTML-содержимое статьи:</label>
+                <label>HTML-содержимое статьи</label>
                 <textarea id="articleContent" placeholder="<h1>Заголовок</h1><p>Текст статьи...</p>"></textarea>
             </div>
             <div class="form-group">
-                <button class="btn btn-primary" onclick="saveArticle()">Сохранить</button>
+                <button class="btn btn-primary" onclick="saveArticle()">Сохранить на GitHub</button>
                 <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tokenModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Настройки GitHub токена</h2>
+                <span class="close-modal" onclick="closeTokenModal()">&times;</span>
+            </div>
+            <div class="form-group">
+                <label>GitHub Personal Access Token</label>
+                <input type="password" id="githubTokenInput" placeholder="Введите ваш GitHub токен">
+                <small style="color: #666; display: block; margin-top: 0.3rem;">
+                    Токен нужен для загрузки файлов на GitHub. Права: repo
+                </small>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" onclick="saveToken()">Сохранить токен</button>
             </div>
         </div>
     </div>
@@ -304,14 +343,29 @@
         
         let currentArticles = [];
         
-        function showStatus(message, isError = false) {
+        function showStatus(message, isError) {
             const statusDiv = document.getElementById('status');
             statusDiv.textContent = message;
             statusDiv.style.background = isError ? '#dc2626' : '#2c7a6e';
             statusDiv.style.display = 'block';
             setTimeout(() => {
                 statusDiv.style.display = 'none';
-            }, 3000);
+            }, 5000);
+        }
+        
+        function getGitHubToken() {
+            return localStorage.getItem('github_token');
+        }
+        
+        function checkToken() {
+            const token = getGitHubToken();
+            const warning = document.getElementById('tokenWarning');
+            if (!token) {
+                warning.style.display = 'block';
+                return false;
+            }
+            warning.style.display = 'none';
+            return true;
         }
         
         function checkAuth() {
@@ -321,6 +375,158 @@
                 return false;
             }
             return true;
+        }
+        
+        async function uploadToGitHub(filename, content, isNew) {
+            const token = getGitHubToken();
+            if (!token) {
+                showStatus('Не настроен GitHub токен', true);
+                return false;
+            }
+            
+            const path = `articles/${filename}`;
+            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
+            const encodedContent = btoa(unescape(encodeURIComponent(content)));
+            let sha = null;
+            
+            if (!isNew) {
+                try {
+                    const getResponse = await fetch(url, {
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    if (getResponse.ok) {
+                        const data = await getResponse.json();
+                        sha = data.sha;
+                    }
+                } catch (e) {}
+            }
+            
+            const body = {
+                message: isNew ? `Добавлена статья ${filename}` : `Обновлена статья ${filename}`,
+                content: encodedContent,
+                branch: BRANCH
+            };
+            
+            if (sha) {
+                body.sha = sha;
+            }
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                if (response.ok) {
+                    showStatus(`Файл ${filename} сохранён на GitHub`, false);
+                    return true;
+                } else {
+                    const error = await response.json();
+                    showStatus(`Ошибка: ${error.message}`, true);
+                    return false;
+                }
+            } catch (error) {
+                showStatus(`Ошибка загрузки: ${error.message}`, true);
+                return false;
+            }
+        }
+        
+        async function deleteFromGitHub(filename) {
+            const token = getGitHubToken();
+            if (!token) {
+                showStatus('Не настроен GitHub токен', true);
+                return false;
+            }
+            
+            const path = `articles/${filename}`;
+            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
+            
+            try {
+                const getResponse = await fetch(url, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (!getResponse.ok) {
+                    showStatus('Файл не найден на GitHub', true);
+                    return false;
+                }
+                
+                const data = await getResponse.json();
+                
+                const deleteResponse = await fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify({
+                        message: `Удалена статья ${filename}`,
+                        sha: data.sha,
+                        branch: BRANCH
+                    })
+                });
+                
+                if (deleteResponse.ok) {
+                    showStatus(`Файл ${filename} удалён с GitHub`, false);
+                    return true;
+                } else {
+                    const error = await deleteResponse.json();
+                    showStatus(`Ошибка: ${error.message}`, true);
+                    return false;
+                }
+            } catch (error) {
+                showStatus(`Ошибка: ${error.message}`, true);
+                return false;
+            }
+        }
+        
+        async function runGenerator() {
+            const token = getGitHubToken();
+            if (!token) {
+                showStatus('Не настроен GitHub токен', true);
+                return;
+            }
+            
+            showStatus('Запуск генератора data.json...', false);
+            
+            const workflowUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/generate-json.yml/dispatches`;
+            
+            try {
+                const response = await fetch(workflowUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify({
+                        ref: BRANCH
+                    })
+                });
+                
+                if (response.ok) {
+                    showStatus('Генератор запущен. Обновите страницу через минуту.', false);
+                    setTimeout(() => {
+                        refreshArticles();
+                    }, 30000);
+                } else {
+                    showStatus('Для автоматического запуска создайте файл .github/workflows/generate-json.yml', true);
+                }
+            } catch (error) {
+                showStatus('Нужно создать workflow для автоматической генерации', true);
+            }
         }
         
         async function refreshArticles() {
@@ -361,7 +567,7 @@
                 document.getElementById('totalCategories').textContent = data.sections?.length || 0;
                 
                 if (articles.length === 0) {
-                    container.innerHTML = '<div class="loading">Нет статей. Создайте первую!</div>';
+                    container.innerHTML = '<div class="loading">Нет статей. Создайте первую.</div>';
                     return;
                 }
                 
@@ -372,10 +578,10 @@
                     row.innerHTML = `
                         <div class="article-title">${escapeHtml(article.name)}</div>
                         <div class="article-url">${escapeHtml(article.url)}</div>
-                        <div>${article.type === 'simple' ? '📄 Простая' : '📁 Подменю'}</div>
+                        <div>${article.type === 'simple' ? 'Простая' : 'Подменю'}</div>
                         <div class="action-buttons">
-                            <button class="action-btn action-edit" onclick="editArticle('${article.filename}')">✏️ Редактировать</button>
-                            <button class="action-btn action-delete" onclick="deleteArticle('${article.filename}')">🗑️ Удалить</button>
+                            <button class="action-btn action-edit" onclick="editArticle('${article.filename}')">Редактировать</button>
+                            <button class="action-btn action-delete" onclick="deleteArticle('${article.filename}')">Удалить</button>
                         </div>
                     `;
                     container.appendChild(row);
@@ -388,20 +594,39 @@
         }
         
         async function editArticle(filename) {
+            const token = getGitHubToken();
+            if (!token) {
+                showStatus('Для редактирования нужен GitHub токен', true);
+                showTokenSettings();
+                return;
+            }
+            
             try {
-                const response = await fetch(`../articles/${filename}?${Date.now()}`);
-                const content = await response.text();
+                const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/articles/${filename}`;
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
                 
-                const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
-                const title = titleMatch ? titleMatch[1] : '';
-                
-                document.getElementById('articleTitle').value = title;
-                document.getElementById('articleFilename').value = filename;
-                document.getElementById('articleContent').value = content;
-                document.getElementById('modalTitle').textContent = 'Редактирование статьи';
-                document.getElementById('editorModal').style.display = 'flex';
+                if (response.ok) {
+                    const data = await response.json();
+                    const content = decodeURIComponent(escape(atob(data.content)));
+                    
+                    const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
+                    const title = titleMatch ? titleMatch[1] : '';
+                    
+                    document.getElementById('articleTitle').value = title;
+                    document.getElementById('articleFilename').value = filename;
+                    document.getElementById('articleContent').value = content;
+                    document.getElementById('modalTitle').textContent = 'Редактирование статьи';
+                    document.getElementById('editorModal').style.display = 'flex';
+                } else {
+                    showStatus('Не удалось загрузить файл с GitHub', true);
+                }
             } catch (error) {
-                showStatus('Ошибка загрузки статьи: ' + error.message, true);
+                showStatus('Ошибка загрузки: ' + error.message, true);
             }
         }
         
@@ -417,7 +642,7 @@
 </head>
 <body>
 <div class="container">
-    <a href="../index.html" class="back-button">← На главную</a>
+    <a href="../index.html" class="back-button">На главную</a>
     
     <div class="hero">
         <h1 class="page-title">Заголовок статьи</h1>
@@ -449,7 +674,7 @@
             let content = document.getElementById('articleContent').value;
             
             if (!filename) {
-                showStatus('Укажите имя файла!', true);
+                showStatus('Укажите имя файла', true);
                 return;
             }
             
@@ -461,32 +686,48 @@
                 content = `<h1>${escapeHtml(title)}</h1>\n` + content;
             }
             
-            showStatus('Инструкция: скачайте файл, добавьте в GitHub в папку articles и запустите скрипт generate-json.js');
+            const isNew = !currentArticles.some(a => a.filename === filename);
+            const success = await uploadToGitHub(filename, content, isNew);
             
-            const blob = new Blob([content], { type: 'text/html' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            link.click();
-            URL.revokeObjectURL(link.href);
-            
-            closeModal();
+            if (success) {
+                closeModal();
+                setTimeout(() => refreshArticles(), 3000);
+            }
         }
         
         async function deleteArticle(filename) {
-            if (!confirm(`Удалить статью ${filename}?\n\nПосле удаления нужно будет запустить скрипт generate-json.js`)) return;
+            if (!confirm(`Удалить статью ${filename}?`)) return;
             
-            showStatus(`Файл ${filename} нужно удалить вручную из папки articles на GitHub, затем запустить generate-json.js`);
+            const success = await deleteFromGitHub(filename);
+            if (success) {
+                setTimeout(() => refreshArticles(), 3000);
+            }
         }
         
-        async function generateDataJson() {
-            showStatus('Запуск генерации data.json...');
-            window.open('../index.html', '_blank');
-            showStatus('Для обновления data.json нужно запустить скрипт generate-json.js локально или через GitHub Actions');
+        function showTokenSettings() {
+            const savedToken = localStorage.getItem('github_token') || '';
+            document.getElementById('githubTokenInput').value = savedToken;
+            document.getElementById('tokenModal').style.display = 'flex';
+        }
+        
+        function saveToken() {
+            const token = document.getElementById('githubTokenInput').value;
+            if (token) {
+                localStorage.setItem('github_token', token);
+                showStatus('Токен сохранён', false);
+                closeTokenModal();
+                checkToken();
+            } else {
+                showStatus('Введите токен', true);
+            }
         }
         
         function closeModal() {
             document.getElementById('editorModal').style.display = 'none';
+        }
+        
+        function closeTokenModal() {
+            document.getElementById('tokenModal').style.display = 'none';
         }
         
         function logout() {
@@ -505,6 +746,7 @@
         }
         
         if (checkAuth()) {
+            checkToken();
             refreshArticles();
         }
     </script>
