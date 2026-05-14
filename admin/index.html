@@ -470,6 +470,16 @@
                 statusDiv.style.display = 'none';
             }, 5000);
         }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
         
         function getGitHubToken() {
             return localStorage.getItem('github_token');
@@ -897,7 +907,7 @@
                 previewFrame.srcdoc = previewHtml;
             }
         }
-        
+
         async function editArticle(filename) {
             const token = getGitHubToken();
             if (!token) {
@@ -921,6 +931,9 @@
                     const data = await response.json();
                     const content = decodeURIComponent(escape(atob(data.content)));
                     
+                    console.log('Загружен файл:', filename);
+                    console.log('Длина содержимого:', content.length);
+                    
                     const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
                     const title = titleMatch ? titleMatch[1] : '';
                     
@@ -936,48 +949,49 @@
                         }
                     }
                     
-                    const contentMatch = content.match(/<div class="main-content">([\s\S]*?)<\/div>\s*<\/div>\s*<\/div>\s*<div class="footer-note">/i);
-                    if (!bodyHtml && contentMatch) {
-                        bodyHtml = contentMatch[1].trim();
+                    const containerMatch = content.match(/<div class="container">([\s\S]*?)<\/div>\s*<\/div>\s*<\/body>/i);
+                    if (!bodyHtml && containerMatch) {
+                        let innerContent = containerMatch[1];
+                        
+                        const heroMatch = innerContent.match(/<div class="hero">[\s\S]*?<\/div>/i);
+                        if (heroMatch) {
+                            innerContent = innerContent.replace(heroMatch[0], '');
+                        }
+                        
+                        const backButtonMatch = innerContent.match(/<a[^>]*class="back-button"[^>]*>[\s\S]*?<\/a>/i);
+                        if (backButtonMatch) {
+                            innerContent = innerContent.replace(backButtonMatch[0], '');
+                        }
+                        
+                        const footerMatch = innerContent.match(/<div class="footer-note">[\s\S]*?<\/div>/i);
+                        if (footerMatch) {
+                            innerContent = innerContent.replace(footerMatch[0], '');
+                        }
+                        
+                        const passwordCardMatch = innerContent.match(/<div class="password-card">[\s\S]*?<\/div>\s*<\/div>/gi);
+                        if (passwordCardMatch) {
+                            for (const card of passwordCardMatch) {
+                                innerContent = innerContent.replace(card, '');
+                            }
+                        }
+                        
+                        bodyHtml = innerContent.trim();
                     }
                     
-                    const passwordCardMatch = content.match(/<div class="password-card">([\s\S]*?)<\/div>\s*<\/div>/i);
-                    if (!bodyHtml && passwordCardMatch) {
-                        bodyHtml = passwordCardMatch[1];
-                    }
-                    
-                    if (!bodyHtml) {
+                    if (!bodyHtml || bodyHtml === '') {
                         const bodyMatch = content.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
                         if (bodyMatch) {
                             let bodyContent = bodyMatch[1];
-                            const containerMatch = bodyContent.match(/<div class="container">([\s\S]*?)<\/div>\s*<\/div>\s*<\/body>/i);
-                            if (containerMatch) {
-                                let containerContent = containerMatch[1];
-                                const heroMatch = containerContent.match(/<div class="hero">[\s\S]*?<\/div>/i);
-                                if (heroMatch) {
-                                    containerContent = containerContent.replace(heroMatch[0], '');
-                                }
-                                const backButtonMatch = containerContent.match(/<a[^>]*class="back-button"[^>]*>[\s\S]*?<\/a>/i);
-                                if (backButtonMatch) {
-                                    containerContent = containerContent.replace(backButtonMatch[0], '');
-                                }
-                                const footerMatch = containerContent.match(/<div class="footer-note">[\s\S]*?<\/div>/i);
-                                if (footerMatch) {
-                                    containerContent = containerContent.replace(footerMatch[0], '');
-                                }
-                                bodyHtml = containerContent.trim();
-                            }
+                            bodyContent = bodyContent.replace(/<div class="container">/i, '');
+                            bodyContent = bodyContent.replace(/<div class="hero">[\s\S]*?<\/div>/i, '');
+                            bodyContent = bodyContent.replace(/<a[^>]*class="back-button"[^>]*>[\s\S]*?<\/a>/i, '');
+                            bodyContent = bodyContent.replace(/<div class="footer-note">[\s\S]*?<\/div>/i, '');
+                            bodyHtml = '<p>' + bodyContent.substring(0, 500) + '</p>';
                         }
                     }
                     
                     if (!bodyHtml || bodyHtml === '') {
-                        const textContent = content.replace(/<[^>]*>/g, ' ');
-                        const lines = textContent.split('\n').filter(l => l.trim().length > 30);
-                        if (lines.length > 0) {
-                            bodyHtml = '<p>' + escapeHtml(lines[0].substring(0, 500)) + '</p>';
-                        } else {
-                            bodyHtml = '<p>Текст статьи не найден. Пожалуйста, отредактируйте содержимое вручную.</p>';
-                        }
+                        bodyHtml = '<p>Содержимое статьи не найдено. Пожалуйста, отредактируйте текст вручную.</p>';
                     }
                     
                     document.getElementById('articleTitle').value = title;
@@ -985,22 +999,24 @@
                     
                     if (quillEditor) {
                         quillEditor.root.innerHTML = bodyHtml;
+                        console.log('Quill обновлён, длина HTML:', bodyHtml.length);
                     }
                     
                     document.getElementById('modalTitle').textContent = 'Редактирование статьи';
                     document.getElementById('editorModal').style.display = 'flex';
                     
                     if (quillEditor) {
-                        setTimeout(() => updatePreview(), 100);
+                        setTimeout(() => updatePreview(), 200);
                     }
                 } else {
                     showStatus('Не удалось загрузить файл с GitHub', true);
                 }
             } catch (error) {
+                console.error('Ошибка:', error);
                 showStatus('Ошибка загрузки: ' + error.message, true);
             }
         }
-        
+
         function createNewArticle() {
             document.getElementById('articleTitle').value = '';
             document.getElementById('articleFilename').value = '';
@@ -1021,6 +1037,7 @@
             
             if (quillEditor) {
                 contentHtml = quillEditor.root.innerHTML;
+                console.log('Сохраняемый HTML:', contentHtml.substring(0, 200));
             }
             
             if (!filename) {
@@ -1031,6 +1048,48 @@
             if (!filename.endsWith('.html')) {
                 filename += '.html';
             }
+            
+            if (!contentHtml || contentHtml === '') {
+                contentHtml = '<p>Содержимое статьи</p>';
+            }
+            
+            const fullHtml = `<!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>${escapeHtml(title)}</title>
+            <link rel="stylesheet" href="../css/style.css">
+            <link rel="stylesheet" href="../css/style-password.css">
+        </head>
+        <body>
+        <div class="container">
+            <a href="../index.html" class="back-button">На главную</a>
+            
+            <div class="hero">
+                <h1 class="page-title">${escapeHtml(title)}</h1>
+                <div class="hero-badge">Статья</div>
+            </div>
+            
+            <div class="general-tips">
+                ${contentHtml}
+            </div>
+            
+            <div class="footer-note">
+                Безопасность начинается с вас.
+            </div>
+        </div>
+        </body>
+        </html>`;
+            
+            const isNew = !currentArticles.some(a => a.filename === filename);
+            const success = await uploadToGitHub(filename, fullHtml, isNew, 'html');
+            
+            if (success) {
+                closeModal();
+                setTimeout(() => refreshArticles(), 3000);
+            }
+        }
             
             const fullHtml = `<!DOCTYPE html>
 <html lang="ru">
