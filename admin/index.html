@@ -924,13 +924,59 @@
                     const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
                     const title = titleMatch ? titleMatch[1] : '';
                     
-                    const bodyMatch = content.match(/<div class="general-tips">([\s\S]*?)<\/div>/i);
                     let bodyHtml = '';
-                    if (bodyMatch) {
-                        bodyHtml = bodyMatch[1];
-                        const headingMatch = bodyHtml.match(/<h3>.*?<\/h3>/);
-                        if (headingMatch) {
-                            bodyHtml = bodyHtml.replace(headingMatch[0], '');
+                    
+                    const generalTipsMatch = content.match(/<div class="general-tips">([\s\S]*?)<\/div>/i);
+                    if (generalTipsMatch) {
+                        bodyHtml = generalTipsMatch[1].trim();
+                        
+                        const h3Match = bodyHtml.match(/<h3[^>]*>.*?<\/h3>/i);
+                        if (h3Match) {
+                            bodyHtml = bodyHtml.replace(h3Match[0], '').trim();
+                        }
+                    }
+                    
+                    const contentMatch = content.match(/<div class="main-content">([\s\S]*?)<\/div>\s*<\/div>\s*<\/div>\s*<div class="footer-note">/i);
+                    if (!bodyHtml && contentMatch) {
+                        bodyHtml = contentMatch[1].trim();
+                    }
+                    
+                    const passwordCardMatch = content.match(/<div class="password-card">([\s\S]*?)<\/div>\s*<\/div>/i);
+                    if (!bodyHtml && passwordCardMatch) {
+                        bodyHtml = passwordCardMatch[1];
+                    }
+                    
+                    if (!bodyHtml) {
+                        const bodyMatch = content.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+                        if (bodyMatch) {
+                            let bodyContent = bodyMatch[1];
+                            const containerMatch = bodyContent.match(/<div class="container">([\s\S]*?)<\/div>\s*<\/div>\s*<\/body>/i);
+                            if (containerMatch) {
+                                let containerContent = containerMatch[1];
+                                const heroMatch = containerContent.match(/<div class="hero">[\s\S]*?<\/div>/i);
+                                if (heroMatch) {
+                                    containerContent = containerContent.replace(heroMatch[0], '');
+                                }
+                                const backButtonMatch = containerContent.match(/<a[^>]*class="back-button"[^>]*>[\s\S]*?<\/a>/i);
+                                if (backButtonMatch) {
+                                    containerContent = containerContent.replace(backButtonMatch[0], '');
+                                }
+                                const footerMatch = containerContent.match(/<div class="footer-note">[\s\S]*?<\/div>/i);
+                                if (footerMatch) {
+                                    containerContent = containerContent.replace(footerMatch[0], '');
+                                }
+                                bodyHtml = containerContent.trim();
+                            }
+                        }
+                    }
+                    
+                    if (!bodyHtml || bodyHtml === '') {
+                        const textContent = content.replace(/<[^>]*>/g, ' ');
+                        const lines = textContent.split('\n').filter(l => l.trim().length > 30);
+                        if (lines.length > 0) {
+                            bodyHtml = '<p>' + escapeHtml(lines[0].substring(0, 500)) + '</p>';
+                        } else {
+                            bodyHtml = '<p>Текст статьи не найден. Пожалуйста, отредактируйте содержимое вручную.</p>';
                         }
                     }
                     
