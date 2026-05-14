@@ -76,13 +76,6 @@
         .btn-warning:hover {
             background: #d97706;
         }
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-        .btn-success:hover {
-            background: #059669;
-        }
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -713,7 +706,7 @@
                         container.appendChild(item);
                     });
                 } else {
-                    container.innerHTML = '<div>Папка images пуста или не создана</div>';
+                    container.innerHTML = '<div>Папка images пуста или не создана. Создайте первую статью, затем папка появится.</div>';
                 }
             } catch (error) {
                 console.error('Ошибка загрузки медиа:', error);
@@ -726,17 +719,6 @@
             showStatus(`Ссылка скопирована: ${text}`, false);
         }
         
-        function insertImageToEditor(imageUrl) {
-            if (quillEditor) {
-                const range = quillEditor.getSelection();
-                if (range) {
-                    quillEditor.insertEmbed(range.index, 'image', imageUrl);
-                } else {
-                    quillEditor.insertEmbed(quillEditor.getLength() - 1, 'image', imageUrl);
-                }
-            }
-        }
-        
         function showMediaLibrary() {
             loadMediaLibrary();
             document.getElementById('mediaModal').style.display = 'flex';
@@ -745,12 +727,6 @@
         function showMediaLibraryForEditor() {
             loadMediaLibrary();
             document.getElementById('mediaModal').style.display = 'flex';
-            
-            const closeHandler = () => {};
-            const originalClose = document.getElementById('mediaModal').querySelector('.close-modal').onclick;
-            document.getElementById('mediaModal').querySelector('.close-modal').onclick = () => {
-                closeMediaModal();
-            };
         }
         
         function closeMediaModal() {
@@ -796,11 +772,16 @@
             
             try {
                 const response = await fetch('../data.json?' + Date.now());
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const data = await response.json();
                 
                 const articles = [];
                 
-                if (data.sections) {
+                if (data.sections && Array.isArray(data.sections)) {
                     data.sections.forEach(section => {
                         if (section.type === 'simple') {
                             articles.push({
@@ -825,7 +806,7 @@
                 currentArticles = articles;
                 
                 document.getElementById('totalArticles').textContent = articles.length;
-                document.getElementById('totalCategories').textContent = data.sections?.length || 0;
+                document.getElementById('totalCategories').textContent = data.sections ? data.sections.length : 0;
                 
                 if (articles.length === 0) {
                     container.innerHTML = '<div class="loading">Нет статей. Создайте первую.</div>';
@@ -850,7 +831,7 @@
                 
             } catch (error) {
                 console.error('Ошибка:', error);
-                container.innerHTML = '<div class="loading">Ошибка загрузки статей</div>';
+                container.innerHTML = '<div class="loading">Ошибка загрузки статей. Проверьте, существует ли файл data.json</div>';
             }
         }
         
@@ -942,51 +923,9 @@
                     const generalTipsMatch = content.match(/<div class="general-tips">([\s\S]*?)<\/div>/i);
                     if (generalTipsMatch) {
                         bodyHtml = generalTipsMatch[1].trim();
-                        
                         const h3Match = bodyHtml.match(/<h3[^>]*>.*?<\/h3>/i);
                         if (h3Match) {
                             bodyHtml = bodyHtml.replace(h3Match[0], '').trim();
-                        }
-                    }
-                    
-                    const containerMatch = content.match(/<div class="container">([\s\S]*?)<\/div>\s*<\/div>\s*<\/body>/i);
-                    if (!bodyHtml && containerMatch) {
-                        let innerContent = containerMatch[1];
-                        
-                        const heroMatch = innerContent.match(/<div class="hero">[\s\S]*?<\/div>/i);
-                        if (heroMatch) {
-                            innerContent = innerContent.replace(heroMatch[0], '');
-                        }
-                        
-                        const backButtonMatch = innerContent.match(/<a[^>]*class="back-button"[^>]*>[\s\S]*?<\/a>/i);
-                        if (backButtonMatch) {
-                            innerContent = innerContent.replace(backButtonMatch[0], '');
-                        }
-                        
-                        const footerMatch = innerContent.match(/<div class="footer-note">[\s\S]*?<\/div>/i);
-                        if (footerMatch) {
-                            innerContent = innerContent.replace(footerMatch[0], '');
-                        }
-                        
-                        const passwordCardMatch = innerContent.match(/<div class="password-card">[\s\S]*?<\/div>\s*<\/div>/gi);
-                        if (passwordCardMatch) {
-                            for (const card of passwordCardMatch) {
-                                innerContent = innerContent.replace(card, '');
-                            }
-                        }
-                        
-                        bodyHtml = innerContent.trim();
-                    }
-                    
-                    if (!bodyHtml || bodyHtml === '') {
-                        const bodyMatch = content.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-                        if (bodyMatch) {
-                            let bodyContent = bodyMatch[1];
-                            bodyContent = bodyContent.replace(/<div class="container">/i, '');
-                            bodyContent = bodyContent.replace(/<div class="hero">[\s\S]*?<\/div>/i, '');
-                            bodyContent = bodyContent.replace(/<a[^>]*class="back-button"[^>]*>[\s\S]*?<\/a>/i, '');
-                            bodyContent = bodyContent.replace(/<div class="footer-note">[\s\S]*?<\/div>/i, '');
-                            bodyHtml = '<p>' + bodyContent.substring(0, 500) + '</p>';
                         }
                     }
                     
@@ -1037,7 +976,6 @@
             
             if (quillEditor) {
                 contentHtml = quillEditor.root.innerHTML;
-                console.log('Сохраняемый HTML:', contentHtml.substring(0, 200));
             }
             
             if (!filename) {
@@ -1052,44 +990,6 @@
             if (!contentHtml || contentHtml === '') {
                 contentHtml = '<p>Содержимое статьи</p>';
             }
-            
-            const fullHtml = `<!DOCTYPE html>
-        <html lang="ru">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>${escapeHtml(title)}</title>
-            <link rel="stylesheet" href="../css/style.css">
-            <link rel="stylesheet" href="../css/style-password.css">
-        </head>
-        <body>
-        <div class="container">
-            <a href="../index.html" class="back-button">На главную</a>
-            
-            <div class="hero">
-                <h1 class="page-title">${escapeHtml(title)}</h1>
-                <div class="hero-badge">Статья</div>
-            </div>
-            
-            <div class="general-tips">
-                ${contentHtml}
-            </div>
-            
-            <div class="footer-note">
-                Безопасность начинается с вас.
-            </div>
-        </div>
-        </body>
-        </html>`;
-            
-            const isNew = !currentArticles.some(a => a.filename === filename);
-            const success = await uploadToGitHub(filename, fullHtml, isNew, 'html');
-            
-            if (success) {
-                closeModal();
-                setTimeout(() => refreshArticles(), 3000);
-            }
-        }
             
             const fullHtml = `<!DOCTYPE html>
 <html lang="ru">
@@ -1152,6 +1052,7 @@
                 closeTokenModal();
                 checkToken();
                 loadMediaLibrary();
+                refreshArticles();
             } else {
                 showStatus('Введите токен', true);
             }
@@ -1169,16 +1070,6 @@
         function logout() {
             localStorage.removeItem('cms_auth');
             window.location.href = 'login.html';
-        }
-        
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
         }
         
         if (checkAuth()) {
