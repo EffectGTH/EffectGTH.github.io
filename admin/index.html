@@ -913,40 +913,24 @@
                     const content = decodeURIComponent(escape(atob(data.content)));
                     
                     console.log('Загружен файл:', filename);
-                    console.log('Длина содержимого:', content.length);
+                    console.log('Первые 500 символов содержимого:', content.substring(0, 500));
                     
                     const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
                     const title = titleMatch ? titleMatch[1] : '';
                     
                     let bodyHtml = '';
                     
-                    const editableMatch = content.match(/<div class="editable-content">([\s\S]*?)<\/div>\s*<!-- КОНЕЦ РЕДАКТИРУЕМОГО БЛОКА -->/i);
+                    const editableMatch = content.match(/<div class="editable-content">\s*([\s\S]*?)\s*<\/div>/i);
                     if (editableMatch) {
                         bodyHtml = editableMatch[1].trim();
                         console.log('Найден editable-content, длина:', bodyHtml.length);
                     }
                     
                     if (!bodyHtml || bodyHtml === '') {
-                        const containerMatch = content.match(/<div class="container">([\s\S]*?)<\/div>\s*<\/div>\s*<\/body>/i);
-                        if (containerMatch) {
-                            let innerContent = containerMatch[1];
-                            
-                            const heroMatch = innerContent.match(/<div class="hero">[\s\S]*?<\/div>/i);
-                            if (heroMatch) {
-                                innerContent = innerContent.replace(heroMatch[0], '');
-                            }
-                            
-                            const backButtonMatch = innerContent.match(/<a[^>]*class="back-button"[^>]*>[\s\S]*?<\/a>/i);
-                            if (backButtonMatch) {
-                                innerContent = innerContent.replace(backButtonMatch[0], '');
-                            }
-                            
-                            const footerNoteMatch = innerContent.match(/<div class="footer-note">[\s\S]*?<\/div>/i);
-                            if (footerNoteMatch) {
-                                innerContent = innerContent.replace(footerNoteMatch[0], '');
-                            }
-                            
-                            bodyHtml = innerContent.trim();
+                        const generalTipsMatch = content.match(/<div class="general-tips">([\s\S]*?)<\/div>/i);
+                        if (generalTipsMatch) {
+                            bodyHtml = generalTipsMatch[1].trim();
+                            console.log('Найден general-tips, длина:', bodyHtml.length);
                         }
                     }
                     
@@ -959,7 +943,7 @@
                     
                     if (quillEditor) {
                         quillEditor.root.innerHTML = bodyHtml;
-                        console.log('Quill обновлён, длина HTML:', bodyHtml.length);
+                        console.log('Quill обновлён');
                     }
                     
                     document.getElementById('modalTitle').textContent = 'Редактирование статьи';
@@ -989,7 +973,7 @@
             document.getElementById('editorModal').style.display = 'flex';
             setTimeout(() => updatePreview(), 100);
         }
-        
+
         async function saveArticle() {
             const title = document.getElementById('articleTitle').value;
             let filename = document.getElementById('articleFilename').value;
@@ -1013,7 +997,7 @@
             }
             
             let existingContent = null;
-            let hasEditableBlock = false;
+            let fullHtml = '';
             const token = getGitHubToken();
             
             if (token) {
@@ -1028,19 +1012,20 @@
                     if (checkResponse.ok) {
                         const data = await checkResponse.json();
                         existingContent = decodeURIComponent(escape(atob(data.content)));
-                        hasEditableBlock = existingContent.includes('class="editable-content"');
+                        console.log('Существующий файл найден, обновляем содержимое');
                     }
-                } catch (e) {}
+                } catch (e) {
+                    console.log('Файл не существует, создаём новый');
+                }
             }
             
-            let fullHtml;
-            
-            if (hasEditableBlock && existingContent) {
-                const editableMatch = existingContent.match(/<div class="editable-content">([\s\S]*?)<\/div>\s*<!-- КОНЕЦ РЕДАКТИРУЕМОГО БЛОКА -->/i);
-                if (editableMatch) {
-                    fullHtml = existingContent.replace(editableMatch[1], contentHtml);
+            if (existingContent) {
+                if (existingContent.includes('class="editable-content"')) {
+                    fullHtml = existingContent.replace(/<div class="editable-content">\s*[\s\S]*?\s*<\/div>/i, `<div class="editable-content">\n    ${contentHtml}\n    </div>`);
+                } else if (existingContent.includes('class="general-tips"')) {
+                    fullHtml = existingContent.replace(/<div class="general-tips">[\s\S]*?<\/div>/i, `<div class="general-tips">\n    ${contentHtml}\n    </div>`);
                 } else {
-                    fullHtml = existingContent.replace(/<div class="editable-content">[\s\S]*?<\/div>/i, `<div class="editable-content">\n    ${contentHtml}\n    </div>`);
+                    fullHtml = existingContent;
                 }
             } else {
                 const heroBadge = filename.includes('2fa') ? 'Двухфакторная аутентификация' : (filename.includes('privacy') ? 'Приватность' : 'Статья');
