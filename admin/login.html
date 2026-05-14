@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход в админ-панель - Безопасность соцсетей</title>
+    <title>Вход в админ-панель</title>
     <style>
         * {
             margin: 0;
@@ -24,7 +24,7 @@
             border-radius: 2rem;
             padding: 2.5rem;
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
             box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(44,122,110,0.2);
         }
@@ -87,6 +87,15 @@
             text-align: center;
             display: none;
         }
+        .info {
+            background: #e0f5ea;
+            color: #1f5e54;
+            padding: 0.8rem;
+            border-radius: 0.8rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 0.8rem;
+        }
         .back-link {
             display: block;
             text-align: center;
@@ -105,6 +114,10 @@
         <h1>Вход в админ-панель</h1>
         <div class="subtitle">Управление статьями сайта</div>
         
+        <div class="info">
+            В первый раз также потребуется ввести GitHub токен
+        </div>
+        
         <div id="errorMsg" class="error"></div>
         
         <div class="form-group">
@@ -112,28 +125,42 @@
             <input type="password" id="password" placeholder="Введите пароль" onkeypress="if(event.key==='Enter') login()">
         </div>
         
+        <div class="form-group">
+            <label>GitHub Personal Access Token (при первом входе)</label>
+            <input type="password" id="githubToken" placeholder="Ваш GitHub токен">
+        </div>
+        
         <button onclick="login()">Войти</button>
         
-        <a href="../index.html" class="back-link">← Вернуться на главную</a>
+        <a href="../index.html" class="back-link">Вернуться на главную</a>
     </div>
 
     <script>
-        const ADMIN_PASSWORD = '20062007ivan';
+        const ADMIN_PASSWORD = 'admin2024';
         
         function login() {
             const password = document.getElementById('password').value;
+            const githubToken = document.getElementById('githubToken').value;
             const errorDiv = document.getElementById('errorMsg');
             
             if (password === ADMIN_PASSWORD) {
                 localStorage.setItem('cms_auth', 'true');
+                if (githubToken) {
+                    localStorage.setItem('github_token', githubToken);
+                }
                 window.location.href = 'index.html';
             } else {
-                errorDiv.textContent = 'Неверный пароль.';
+                errorDiv.textContent = 'Неверный пароль. Попробуйте еще раз.';
                 errorDiv.style.display = 'block';
                 setTimeout(() => {
                     errorDiv.style.display = 'none';
                 }, 3000);
             }
+        }
+        
+        const savedToken = localStorage.getItem('github_token');
+        if (savedToken) {
+            document.getElementById('githubToken').value = savedToken;
         }
     </script>
 </body>
