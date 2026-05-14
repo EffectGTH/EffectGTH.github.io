@@ -92,7 +92,6 @@
                 container.appendChild(sectionCard);
             } 
             else if (section.type === 'submenu') {
-                // Подменю с платформами
                 const submenuId = `submenu-${section.num}-${Date.now()}-${Math.random()}`;
                 sectionCard.innerHTML = `
                     <div class="section-header">
@@ -107,15 +106,13 @@
                     </div>
                 `;
                 container.appendChild(sectionCard);
-                
-                // Заполняем подменю платформами
+            
                 if (section.platforms && section.platforms.length > 0) {
                     renderSubmenu(submenuId, section.platforms);
                 }
             }
         });
 
-        // Привязываем события для аккордеона
         bindAccordionEvents();
     }
 
@@ -130,7 +127,6 @@
             sectionCard.classList.remove('active');
             if (toggleSpan) toggleSpan.textContent = '+';
         } else {
-            // Закрываем другие открытые секции
             document.querySelectorAll('.section-card').forEach(card => {
                 if (card !== sectionCard && card.classList.contains('active')) {
                     card.classList.remove('active');
@@ -170,8 +166,7 @@
             .then(data => {
                 if (data.sections && Array.isArray(data.sections)) {
                     renderSections(data.sections);
-                    console.log('✅ Загружено разделов:', data.sections.length);
-                    // Выводим типы разделов для отладки
+                    console.log('Загружено разделов:', data.sections.length);
                     data.sections.forEach((s, i) => {
                         console.log(`   Раздел ${i+1}: ${s.title} (тип: ${s.type})`);
                     });
@@ -180,17 +175,16 @@
                 }
             })
             .catch(error => {
-                console.error('❌ Ошибка загрузки data.json:', error);
+                console.error('Ошибка загрузки data.json:', error);
                 document.getElementById('accordionRoot').innerHTML = `
                     <div class="error-msg" style="grid-column:1/-1; padding:2rem; text-align:center;">
-                        ⚠️ Не удалось загрузить разделы.<br>
+                        Не удалось загрузить разделы.<br>
                         <small>Ошибка: ${error.message}</small>
                     </div>
                 `;
             });
     }
 
-    // Запускаем загрузку
     loadSections();
 </script>
 </body>
