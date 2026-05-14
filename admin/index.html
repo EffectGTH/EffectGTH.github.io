@@ -913,7 +913,6 @@
                     const content = decodeURIComponent(escape(atob(data.content)));
                     
                     console.log('Загружен файл:', filename);
-                    console.log('Первые 500 символов содержимого:', content.substring(0, 500));
                     
                     const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
                     const title = titleMatch ? titleMatch[1] : '';
@@ -942,16 +941,24 @@
                     document.getElementById('articleFilename').value = filename;
                     
                     if (quillEditor) {
-                        quillEditor.root.innerHTML = bodyHtml;
-                        console.log('Quill обновлён');
+                        const editorElement = document.querySelector('#editor .ql-editor');
+                        if (editorElement) {
+                            editorElement.innerHTML = bodyHtml;
+                        } else {
+                            quillEditor.root.innerHTML = bodyHtml;
+                        }
+                        console.log('Quill обновлён, содержимое:', quillEditor.root.innerHTML.substring(0, 200));
                     }
                     
                     document.getElementById('modalTitle').textContent = 'Редактирование статьи';
                     document.getElementById('editorModal').style.display = 'flex';
                     
-                    if (quillEditor) {
-                        setTimeout(() => updatePreview(), 200);
-                    }
+                    setTimeout(() => {
+                        updatePreview();
+                        if (quillEditor) {
+                            quillEditor.focus();
+                        }
+                    }, 300);
                 } else {
                     showStatus('Не удалось загрузить файл с GitHub', true);
                 }
@@ -1138,6 +1145,12 @@
                     ]
                 }
             });
+            
+            setTimeout(() => {
+                if (quillEditor && quillEditor.root) {
+                    console.log('Quill инициализирован');
+                }
+            }, 500);
             
             quillEditor.on('text-change', function() {
                 updatePreview();
