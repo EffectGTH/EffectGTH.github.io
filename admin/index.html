@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель - Управление статьями</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+        }
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        h1 {
+            color: #1a4a42;
+            font-size: 1.8rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-primary {
+            background: #2c7a6e;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1f5e54;
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c7a6e;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+        }
+        .articles-grid {
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .articles-header {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr 1fr;
+            background: #2c7a6e;
+            color: white;
+            padding: 0.8rem 1rem;
+            font-weight: 600;
+        }
+        .article-row {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr 1fr;
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+        .article-row:hover {
+            background: #f9f9f9;
+        }
+        .article-title {
+            font-weight: 500;
+        }
+        .article-url {
+            font-size: 0.85rem;
+            color: #666;
+            word-break: break-all;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .action-btn {
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+        .action-edit {
+            background: #3b82f6;
+            color: white;
+        }
+        .action-edit:hover {
+            background: #2563eb;
+        }
+        .action-delete {
+            background: #ef4444;
+            color: white;
+        }
+        .action-delete:hover {
+            background: #dc2626;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 900px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        .modal-header h2 {
+            color: #1a4a42;
+        }
+        .close-modal {
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #999;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+            color: #1f5e54;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #cbdcd6;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-family: monospace;
+        }
+        textarea {
+            min-height: 400px;
+            font-family: monospace;
+        }
+        .status {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background: #2c7a6e;
+            color: white;
+            padding: 0.8rem 1.2rem;
+            border-radius: 0.5rem;
+            display: none;
+            z-index: 1001;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .admin-container { padding: 1rem; }
+            .articles-header, .article-row {
+                grid-template-columns: 1fr;
+                gap: 0.3rem;
+            }
+            .articles-header { display: none; }
+            .article-row { padding: 0.8rem; }
+            .action-buttons { margin-top: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="header">
+            <h1>Админ-панель управления статьями</h1>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="refreshArticles()">Обновить</button>
+                <button class="btn btn-primary" onclick="createNewArticle()">Новая статья</button>
+                <button class="btn btn-secondary" onclick="generateDataJson()">Сгенерировать data.json</button>
+                <button class="btn btn-danger" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalArticles">0</div>
+                <div class="stat-label">Всего статей</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalCategories">0</div>
+                <div class="stat-label">Категорий</div>
+            </div>
+        </div>
+
+        <div class="articles-grid">
+            <div class="articles-header">
+                <div>Название статьи</div>
+                <div>URL</div>
+                <div>Тип</div>
+                <div>Действия</div>
+            </div>
+            <div id="articlesList">
+                <div class="loading">Загрузка статей...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="editorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Редактирование статьи</h2>
+                <span class="close-modal" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="form-group">
+                <label>Заголовок статьи (будет отображаться на странице):</label>
+                <input type="text" id="articleTitle" placeholder="Заголовок статьи">
+            </div>
+            <div class="form-group">
+                <label>Имя файла (например: 2fa-telegram.html):</label>
+                <input type="text" id="articleFilename" placeholder="filename.html">
+            </div>
+            <div class="form-group">
+                <label>HTML-содержимое статьи:</label>
+                <textarea id="articleContent" placeholder="<h1>Заголовок</h1><p>Текст статьи...</p>"></textarea>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" onclick="saveArticle()">Сохранить</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <script>
+        const REPO_OWNER = 'EffectGTH';
+        const REPO_NAME = 'EffectGTH.github.io';
+        const BRANCH = 'main';
+        
+        let currentArticles = [];
+        
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.style.background = isError ? '#dc2626' : '#2c7a6e';
+            statusDiv.style.display = 'block';
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+        
+        function checkAuth() {
+            const isAuth = localStorage.getItem('cms_auth');
+            if (isAuth !== 'true') {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+        
+        async function refreshArticles() {
+            const container = document.getElementById('articlesList');
+            container.innerHTML = '<div class="loading">Загрузка статей...</div>';
+            
+            try {
+                const response = await fetch('../data.json?' + Date.now());
+                const data = await response.json();
+                
+                const articles = [];
+                
+                if (data.sections) {
+                    data.sections.forEach(section => {
+                        if (section.type === 'simple') {
+                            articles.push({
+                                name: section.title,
+                                url: section.link,
+                                type: 'simple',
+                                filename: section.link.split('/').pop()
+                            });
+                        } else if (section.type === 'submenu' && section.platforms) {
+                            section.platforms.forEach(platform => {
+                                articles.push({
+                                    name: platform.name,
+                                    url: platform.url,
+                                    type: 'submenu',
+                                    filename: platform.url.split('/').pop()
+                                });
+                            });
+                        }
+                    });
+                }
+                
+                currentArticles = articles;
+                
+                document.getElementById('totalArticles').textContent = articles.length;
+                document.getElementById('totalCategories').textContent = data.sections?.length || 0;
+                
+                if (articles.length === 0) {
+                    container.innerHTML = '<div class="loading">Нет статей. Создайте первую!</div>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                articles.forEach(article => {
+                    const row = document.createElement('div');
+                    row.className = 'article-row';
+                    row.innerHTML = `
+                        <div class="article-title">${escapeHtml(article.name)}</div>
+                        <div class="article-url">${escapeHtml(article.url)}</div>
+                        <div>${article.type === 'simple' ? '📄 Простая' : '📁 Подменю'}</div>
+                        <div class="action-buttons">
+                            <button class="action-btn action-edit" onclick="editArticle('${article.filename}')">✏️ Редактировать</button>
+                            <button class="action-btn action-delete" onclick="deleteArticle('${article.filename}')">🗑️ Удалить</button>
+                        </div>
+                    `;
+                    container.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                container.innerHTML = '<div class="loading">Ошибка загрузки статей</div>';
+            }
+        }
+        
+        async function editArticle(filename) {
+            try {
+                const response = await fetch(`../articles/${filename}?${Date.now()}`);
+                const content = await response.text();
+                
+                const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
+                const title = titleMatch ? titleMatch[1] : '';
+                
+                document.getElementById('articleTitle').value = title;
+                document.getElementById('articleFilename').value = filename;
+                document.getElementById('articleContent').value = content;
+                document.getElementById('modalTitle').textContent = 'Редактирование статьи';
+                document.getElementById('editorModal').style.display = 'flex';
+            } catch (error) {
+                showStatus('Ошибка загрузки статьи: ' + error.message, true);
+            }
+        }
+        
+        function createNewArticle() {
+            const template = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новая статья</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style-password.css">
+</head>
+<body>
+<div class="container">
+    <a href="../index.html" class="back-button">← На главную</a>
+    
+    <div class="hero">
+        <h1 class="page-title">Заголовок статьи</h1>
+        <div class="hero-badge">Категория</div>
+    </div>
+    
+    <div class="general-tips">
+        <h3>Содержание статьи</h3>
+        <p>Напишите здесь текст статьи...</p>
+    </div>
+    
+    <div class="footer-note">
+        Безопасность начинается с вас.
+    </div>
+</div>
+</body>
+</html>`;
+            
+            document.getElementById('articleTitle').value = '';
+            document.getElementById('articleFilename').value = '';
+            document.getElementById('articleContent').value = template;
+            document.getElementById('modalTitle').textContent = 'Создание новой статьи';
+            document.getElementById('editorModal').style.display = 'flex';
+        }
+        
+        async function saveArticle() {
+            const title = document.getElementById('articleTitle').value;
+            let filename = document.getElementById('articleFilename').value;
+            let content = document.getElementById('articleContent').value;
+            
+            if (!filename) {
+                showStatus('Укажите имя файла!', true);
+                return;
+            }
+            
+            if (!filename.endsWith('.html')) {
+                filename += '.html';
+            }
+            
+            if (title && !content.includes('<h1>')) {
+                content = `<h1>${escapeHtml(title)}</h1>\n` + content;
+            }
+            
+            showStatus('Инструкция: скачайте файл, добавьте в GitHub в папку articles и запустите скрипт generate-json.js');
+            
+            const blob = new Blob([content], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(link.href);
+            
+            closeModal();
+        }
+        
+        async function deleteArticle(filename) {
+            if (!confirm(`Удалить статью ${filename}?\n\nПосле удаления нужно будет запустить скрипт generate-json.js`)) return;
+            
+            showStatus(`Файл ${filename} нужно удалить вручную из папки articles на GitHub, затем запустить generate-json.js`);
+        }
+        
+        async function generateDataJson() {
+            showStatus('Запуск генерации data.json...');
+            window.open('../index.html', '_blank');
+            showStatus('Для обновления data.json нужно запустить скрипт generate-json.js локально или через GitHub Actions');
+        }
+        
+        function closeModal() {
+            document.getElementById('editorModal').style.display = 'none';
+        }
+        
+        function logout() {
+            localStorage.removeItem('cms_auth');
+            window.location.href = 'login.html';
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        if (checkAuth()) {
+            refreshArticles();
+        }
+    </script>
+</body>
+</html>
