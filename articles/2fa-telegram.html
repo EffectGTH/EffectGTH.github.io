@@ -127,74 +127,78 @@
         <h1 class="page-title">Двухфакторная аутентификация в Telegram</h1>
     </div>
 
-    <div class="general-tips" style="margin-bottom: 1.5rem;">
-        <h3>Что такое двухфакторная аутентификация (2FA) в Telegram?</h3>
-        <p>Telegram использует номер телефона и SMS-код для входа. Но если злоумышленники смогут перехватить SMS или украсть SIM-карту, они получат доступ к вашему аккаунту. <strong>Двухэтапная аутентификация (облачный пароль)</strong> добавляет второй уровень защиты: после ввода кода из SMS система попросит ввести дополнительный пароль, который знаете только вы.</p>
-        <div class="info-note">
-            <span style="font-size:1.2rem; margin-right:0.3rem;">🔐</span> <strong>Важно:</strong> Облачный пароль также защищает ваши секретные чаты и данные, хранящиеся в облаке Telegram.
+    <!-- РЕДАКТИРУЕМЫЙ БЛОК: всё содержимое внутри этого блока можно редактировать через админ-панель -->
+    <div class="editable-content">
+        <div class="general-tips" style="margin-bottom: 1.5rem;">
+            <h3>Что такое двухфакторная аутентификация (2FA) в Telegram?</h3>
+            <p>Telegram использует номер телефона и SMS-код для входа. Но если злоумышленники смогут перехватить SMS или украсть SIM-карту, они получат доступ к вашему аккаунту. <strong>Двухэтапная аутентификация (облачный пароль)</strong> добавляет второй уровень защиты: после ввода кода из SMS система попросит ввести дополнительный пароль, который знаете только вы.</p>
+            <div class="info-note">
+                <span style="font-size:1.2rem; margin-right:0.3rem;">🔐</span> <strong>Важно:</strong> Облачный пароль также защищает ваши секретные чаты и данные, хранящиеся в облаке Telegram.
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header">
+                <h3>Пошаговая инструкция: как включить облачный пароль в Telegram</h3>
+            </div>
+            <div class="card-body">
+                <div class="screenshot-placeholder">
+                    Скриншот
+                </div>
+                
+                <ul class="step-list">
+                    <li><strong>Откройте Telegram</strong> на вашем телефоне или компьютере.</li>
+                    <li>Нажмите на <strong>«Настройки»</strong> (в мобильной версии — три полоски в левом верхнем углу или шестерёнка в правом нижнем углу).</li>
+                    <li>Выберите раздел <strong>«Конфиденциальность»</strong>.</li>
+                    <li>Прокрутите вниз до раздела <strong>«Безопасность»</strong> и нажмите <strong>«Двухэтапная аутентификация»</strong> (в некоторых версиях — «Облачный пароль»).</li>
+                    <li>Нажмите <strong>«Задать пароль»</strong>.</li>
+                    <li><strong>Придумайте надёжный пароль</strong> (не менее 8 символов, лучше комбинация букв, цифр и спецсимволов). Пример: Gr3!7#kL9@qW</li>
+                    <li><strong>Добавьте подсказку</strong> на случай, если забудете пароль.</li>
+                    <li><strong>Обязательно укажите адрес электронной почты</strong> для восстановления.</li>
+                    <li>Нажмите <strong>«Готово»</strong> или «Сохранить».</li>
+                </ul>
+
+                <div class="warning-note">
+                    <span style="font-size:1.2rem; margin-right:0.3rem;">⚠️</span> <strong>Внимание:</strong> Запишите пароль и адрес электронной почты на бумажку и храните в надёжном месте. Если вы потеряете доступ к почте и забудете пароль — восстановить аккаунт будет очень сложно!
+                </div>
+
+                <div class="success-note">
+                    <span style="font-size:1.2rem; margin-right:0.3rem;">✅</span> <strong>Совет:</strong> После включения 2FA Telegram предложит вам сохранить <strong>резервные коды</strong>. Обязательно сохраните их.
+                </div>
+
+                <div class="source-link" style="margin-top: 1.5rem;">
+                    📘 Официальный источник Telegram: <a href="https://telegram.org/faq#q-what-is-two-step-verification" target="_blank">Что такое двухэтапная аутентификация?</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header">
+                <span style="font-size: 1.8rem;">✅</span>
+                <h3>Чек-лист: всё ли вы сделали правильно</h3>
+            </div>
+            <div class="card-body">
+                <ul class="checklist-simple" id="tg-2fa-checklist">
+                    <li><input type="checkbox" id="check1"> <label for="check1">Я установил(а) облачный пароль длиной от 8 символов</label></li>
+                    <li><input type="checkbox" id="check2"> <label for="check2">Я добавил(а) понятную подсказку</label></li>
+                    <li><input type="checkbox" id="check3"> <label for="check3">Я указал(а) рабочий адрес электронной почты для восстановления</label></li>
+                    <li><input type="checkbox" id="check4"> <label for="check4">Я записал(а) пароль и адрес почты на бумаге</label></li>
+                    <li><input type="checkbox" id="check5"> <label for="check5">Я сохранил(а) резервные коды</label></li>
+                </ul>
+                <div style="margin-top: 0.8rem;">
+                    <button id="resetTgChecklist" class="reset-checklist">Сбросить все отметки</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="general-tips" style="border-left: 6px solid var(--accent-teal);">
+            <h3>Часто задаваемые вопросы</h3>
+            <p><strong>❓ Что делать, если я забыл облачный пароль, но указал почту?</strong><br>Telegram отправит на вашу почту ссылку для сброса пароля.</p>
+            <p><strong>❓ Что делать, если я забыл пароль и не указал почту?</strong><br>Восстановить доступ почти невозможно. Поэтому указывать почту — обязательно!</p>
+            <p><strong>❓ Нужно ли вводить облачный пароль при каждом входе?</strong><br>Нет, только при входе на новое устройство.</p>
         </div>
     </div>
-
-    <div class="password-card">
-        <div class="card-header">
-            <h3>Пошаговая инструкция: как включить облачный пароль в Telegram</h3>
-        </div>
-        <div class="card-body">
-            <div class="screenshot-placeholder">
-                Скриншот
-            </div>
-            
-            <ul class="step-list">
-                <li><strong>Откройте Telegram</strong> на вашем телефоне или компьютере.</li>
-                <li>Нажмите на <strong>«Настройки»</strong> (в мобильной версии — три полоски в левом верхнем углу или шестерёнка в правом нижнем углу).</li>
-                <li>Выберите раздел <strong>«Конфиденциальность»</strong>.</li>
-                <li>Прокрутите вниз до раздела <strong>«Безопасность»</strong> и нажмите <strong>«Двухэтапная аутентификация»</strong> (в некоторых версиях — «Облачный пароль»).</li>
-                <li>Нажмите <strong>«Задать пароль»</strong>.</li>
-                <li><strong>Придумайте надёжный пароль</strong> (не менее 8 символов, лучше комбинация букв, цифр и спецсимволов). Пример: Gr3!7#kL9@qW</li>
-                <li><strong>Добавьте подсказку</strong> на случай, если забудете пароль.</li>
-                <li><strong>Обязательно укажите адрес электронной почты</strong> для восстановления.</li>
-                <li>Нажмите <strong>«Готово»</strong> или «Сохранить».</li>
-            </ul>
-
-            <div class="warning-note">
-                <span style="font-size:1.2rem; margin-right:0.3rem;">⚠️</span> <strong>Внимание:</strong> Запишите пароль и адрес электронной почты на бумажку и храните в надёжном месте. Если вы потеряете доступ к почте и забудете пароль — восстановить аккаунт будет очень сложно!
-            </div>
-
-            <div class="success-note">
-                <span style="font-size:1.2rem; margin-right:0.3rem;">✅</span> <strong>Совет:</strong> После включения 2FA Telegram предложит вам сохранить <strong>резервные коды</strong>. Обязательно сохраните их.
-            </div>
-
-            <div class="source-link" style="margin-top: 1.5rem;">
-                📘 Официальный источник Telegram: <a href="https://telegram.org/faq#q-what-is-two-step-verification" target="_blank">Что такое двухэтапная аутентификация?</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="password-card">
-        <div class="card-header">
-            <span style="font-size: 1.8rem;">✅</span>
-            <h3>Чек-лист: всё ли вы сделали правильно</h3>
-        </div>
-        <div class="card-body">
-            <ul class="checklist-simple" id="tg-2fa-checklist">
-                <li><input type="checkbox" id="check1"> <label for="check1">Я установил(а) облачный пароль длиной от 8 символов</label></li>
-                <li><input type="checkbox" id="check2"> <label for="check2">Я добавил(а) понятную подсказку</label></li>
-                <li><input type="checkbox" id="check3"> <label for="check3">Я указал(а) рабочий адрес электронной почты для восстановления</label></li>
-                <li><input type="checkbox" id="check4"> <label for="check4">Я записал(а) пароль и адрес почты на бумаге</label></li>
-                <li><input type="checkbox" id="check5"> <label for="check5">Я сохранил(а) резервные коды</label></li>
-            </ul>
-            <div style="margin-top: 0.8rem;">
-                <button id="resetTgChecklist" class="reset-checklist">Сбросить все отметки</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="general-tips" style="border-left: 6px solid var(--accent-teal);">
-        <h3>Часто задаваемые вопросы</h3>
-        <p><strong>❓ Что делать, если я забыл облачный пароль, но указал почту?</strong><br>Telegram отправит на вашу почту ссылку для сброса пароля.</p>
-        <p><strong>❓ Что делать, если я забыл пароль и не указал почту?</strong><br>Восстановить доступ почти невозможно. Поэтому указывать почту — обязательно!</p>
-        <p><strong>❓ Нужно ли вводить облачный пароль при каждом входе?</strong><br>Нет, только при входе на новое устройство.</p>
-    </div>
+    <!-- КОНЕЦ РЕДАКТИРУЕМОГО БЛОКА -->
 </div>
 
 <script>
