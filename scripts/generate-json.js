@@ -19,14 +19,12 @@ function detectCategory(fileName, title) {
     const lowerName = fileName.toLowerCase();
     const lowerTitle = title.toLowerCase();
     
-    // Определяем категорию по ключевым словам в имени файла или заголовке
     if (lowerName.includes('password') || lowerTitle.includes('пароль')) {
         return { main: 'password', name: 'Надёжный пароль', type: 'simple' };
     }
     
     if (lowerName.includes('2fa') || lowerName.includes('twofactor') || 
         lowerTitle.includes('двухфактор')) {
-        // Определяем платформу для подменю
         let platform = '';
         if (lowerName.includes('telegram') || lowerTitle.includes('telegram')) platform = 'Telegram';
         else if (lowerName.includes('vk') || lowerTitle.includes('вконтакте')) platform = 'VK';
@@ -58,28 +56,26 @@ function detectCategory(fileName, title) {
         return { main: 'about', name: 'Об авторах', type: 'simple' };
     }
     
-    // Если не определилось - создаём отдельную категорию на основе первой части имени файла
     const firstPart = lowerName.split('-')[0];
     if (firstPart && firstPart !== fileName) {
         return { main: firstPart, name: title, type: 'simple' };
     }
     
-    // Совсем неопределённые файлы
     return { main: 'other', name: title, type: 'simple' };
 }
 
 function scanArticles() {
     if (!fs.existsSync(articlesDir)) {
         fs.mkdirSync(articlesDir, { recursive: true });
-        console.log('📁 Создана папка articles');
+        console.log('Создана папка articles');
         return { simpleSections: [], submenuGroups: {} };
     }
 
     const files = fs.readdirSync(articlesDir);
     const htmlFiles = files.filter(f => f.endsWith('.html'));
     
-    console.log(`📁 Папка articles: ${articlesDir}`);
-    console.log(`📄 Найдено HTML файлов: ${htmlFiles.length}\n`);
+    console.log(`Папка articles: ${articlesDir}`);
+    console.log(`Найдено HTML файлов: ${htmlFiles.length}\n`);
     
     const simpleItems = [];
     const submenuItems = {};
@@ -89,7 +85,7 @@ function scanArticles() {
         const title = extractTitle(filePath, file);
         const category = detectCategory(file, title);
         
-        console.log(`📄 ${file}`);
+        console.log(`${file}`);
         console.log(`   Заголовок: ${title}`);
         console.log(`   Категория: ${category.main}`);
         
@@ -118,7 +114,6 @@ function scanArticles() {
         console.log('');
     });
     
-    // Преобразуем simpleItems в sections (группируем по id)
     const simpleSections = [];
     const processedIds = new Set();
     
@@ -138,15 +133,14 @@ function scanArticles() {
 }
 
 function generate() {
-    console.log('🚀 Запуск генерации data.json\n');
-    console.log('🔍 Сканирование папки articles...\n');
+    console.log('Запуск генерации data.json\n');
+    console.log('Сканирование папки articles...\n');
     
     const { simpleSections, submenuItems } = scanArticles();
     
     const sections = [];
     let num = 1;
     
-    // Определяем порядок разделов
     const orderPriority = {
         'password': 1,
         'fraud': 2,
@@ -154,14 +148,12 @@ function generate() {
         'about': 4
     };
     
-    // Сортируем простые разделы по приоритету
     const sortedSimple = [...simpleSections].sort((a, b) => {
         const priorityA = orderPriority[a.id] || 999;
         const priorityB = orderPriority[b.id] || 999;
         return priorityA - priorityB;
     });
     
-    // Добавляем простые разделы
     sortedSimple.forEach(section => {
         sections.push({
             num: num++,
@@ -170,10 +162,9 @@ function generate() {
             link: section.url,
             linkText: section.linkText
         });
-        console.log(`✅ Добавлен раздел: ${num-1}. ${section.title} → ${section.url}`);
+        console.log(`Добавлен раздел: ${num-1}. ${section.title} → ${section.url}`);
     });
     
-    // Добавляем подменю
     const submenuOrder = ['2fa', 'privacy'];
     for (const key of submenuOrder) {
         if (submenuItems[key] && submenuItems[key].platforms.length > 0) {
@@ -183,11 +174,10 @@ function generate() {
                 type: "submenu",
                 platforms: submenuItems[key].platforms
             });
-            console.log(`✅ Добавлено подменю: ${num-1}. ${submenuItems[key].title} (${submenuItems[key].platforms.length} платформ)`);
+            console.log(`Добавлено подменю: ${num-1}. ${submenuItems[key].title} (${submenuItems[key].platforms.length} платформ)`);
         }
     }
     
-    // Добавляем любые другие подменю, которые могли появиться
     for (const key in submenuItems) {
         if (key !== '2fa' && key !== 'privacy' && submenuItems[key].platforms.length > 0) {
             sections.push({
@@ -196,21 +186,12 @@ function generate() {
                 type: "submenu",
                 platforms: submenuItems[key].platforms
             });
-            console.log(`✅ Добавлено подменю: ${num-1}. ${submenuItems[key].title} (${submenuItems[key].platforms.length} платформ)`);
+            console.log(`Добавлено подменю: ${num-1}. ${submenuItems[key].title} (${submenuItems[key].platforms.length} платформ)`);
         }
     }
     
     const output = { sections };
     fs.writeFileSync(outputFile, JSON.stringify(output, null, 2));
-    
-    console.log(`\n📄 data.json сохранён в: ${outputFile}`);
-    console.log(`\n📊 ИТОГОВАЯ СТАТИСТИКА:`);
-    console.log(`   - Всего HTML файлов в папке articles: ${simpleSections.reduce((sum, s) => sum + 1, 0) + Object.values(submenuItems).reduce((sum, item) => sum + item.platforms.length, 0)}`);
-    console.log(`   - Всего разделов в меню: ${sections.length}`);
-    console.log(`   - Простых разделов: ${sections.filter(s => s.type === 'simple').length}`);
-    console.log(`   - Подменю: ${sections.filter(s => s.type === 'submenu').length}`);
-    console.log(`\n✨ Готово! Теперь index.html загрузит все эти разделы.`);
 }
 
-// Запуск
 generate();
