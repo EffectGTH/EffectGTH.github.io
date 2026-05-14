@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в админ-панель - Безопасность соцсетей</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #e8edf2 0%, #dce5ec 45%, #cfdbe4 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(44,122,110,0.2);
+        }
+        h1 {
+            color: #1a4a42;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .subtitle {
+            text-align: center;
+            color: #2d4a45;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #1f5e54;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #cbdcd6;
+            border-radius: 1rem;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #2c7a6e;
+            box-shadow: 0 0 0 3px rgba(44,122,110,0.2);
+        }
+        button {
+            width: 100%;
+            padding: 0.8rem;
+            background: #2c7a6e;
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #1f5e54;
+            transform: translateY(-2px);
+        }
+        .error {
+            background: #ffe0d9;
+            color: #b33a2e;
+            padding: 0.8rem;
+            border-radius: 0.8rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #2c7a6e;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Вход в админ-панель</h1>
+        <div class="subtitle">Управление статьями сайта</div>
+        
+        <div id="errorMsg" class="error"></div>
+        
+        <div class="form-group">
+            <label>Пароль администратора</label>
+            <input type="password" id="password" placeholder="Введите пароль" onkeypress="if(event.key==='Enter') login()">
+        </div>
+        
+        <button onclick="login()">Войти</button>
+        
+        <a href="../index.html" class="back-link">← Вернуться на главную</a>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = 'admin2024';
+        
+        function login() {
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('errorMsg');
+            
+            if (password === ADMIN_PASSWORD) {
+                localStorage.setItem('cms_auth', 'true');
+                window.location.href = 'index.html';
+            } else {
+                errorDiv.textContent = 'Неверный пароль.';
+                errorDiv.style.display = 'block';
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>
