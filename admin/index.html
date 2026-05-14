@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Админ-панель - Управление статьями</title>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -16,7 +17,7 @@
             min-height: 100vh;
         }
         .admin-container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 2rem;
         }
@@ -75,6 +76,13 @@
         .btn-warning:hover {
             background: #d97706;
         }
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -103,6 +111,7 @@
             border-radius: 1rem;
             overflow: hidden;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
         }
         .articles-header {
             display: grid;
@@ -171,9 +180,9 @@
             background: white;
             padding: 2rem;
             border-radius: 1rem;
-            width: 90%;
-            max-width: 900px;
-            max-height: 85vh;
+            width: 95%;
+            max-width: 1200px;
+            max-height: 90vh;
             overflow-y: auto;
         }
         .modal-header {
@@ -201,17 +210,22 @@
             margin-bottom: 0.3rem;
             color: #1f5e54;
         }
-        input, textarea {
+        input, .ql-container {
             width: 100%;
-            padding: 0.7rem;
             border: 1px solid #cbdcd6;
             border-radius: 0.5rem;
-            font-size: 0.9rem;
-            font-family: monospace;
         }
-        textarea {
-            min-height: 400px;
-            font-family: monospace;
+        input {
+            padding: 0.7rem;
+            font-size: 0.9rem;
+        }
+        .editor-wrapper {
+            border: 1px solid #cbdcd6;
+            border-radius: 0.5rem;
+            background: white;
+        }
+        #editor {
+            height: 400px;
         }
         .status {
             position: fixed;
@@ -237,6 +251,66 @@
             margin-bottom: 1rem;
             font-size: 0.85rem;
         }
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.8rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+        .media-item {
+            background: #f9f9f9;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .media-item:hover {
+            border-color: #2c7a6e;
+        }
+        .media-item img {
+            max-width: 100%;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 0.3rem;
+        }
+        .media-item video {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 0.3rem;
+        }
+        .preview-frame {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #cbdcd6;
+            border-radius: 0.5rem;
+            background: white;
+        }
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #cbdcd6;
+            padding-bottom: 0.5rem;
+        }
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+        }
+        .tab.active {
+            background: #2c7a6e;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
         @media (max-width: 768px) {
             .admin-container { padding: 1rem; }
             .articles-header, .article-row {
@@ -246,6 +320,7 @@
             .articles-header { display: none; }
             .article-row { padding: 0.8rem; }
             .action-buttons { margin-top: 0.5rem; }
+            .modal-content { width: 95%; padding: 1rem; }
         }
     </style>
 </head>
@@ -257,6 +332,7 @@
                 <button class="btn btn-primary" onclick="refreshArticles()">Обновить</button>
                 <button class="btn btn-primary" onclick="createNewArticle()">Новая статья</button>
                 <button class="btn btn-warning" onclick="runGenerator()">Запустить генератор</button>
+                <button class="btn btn-secondary" onclick="showMediaLibrary()">Медиатека</button>
                 <button class="btn btn-secondary" onclick="showTokenSettings()">Настройки токена</button>
                 <button class="btn btn-danger" onclick="logout()">Выйти</button>
             </div>
@@ -274,6 +350,10 @@
             <div class="stat-card">
                 <div class="stat-number" id="totalCategories">0</div>
                 <div class="stat-label">Категорий</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalImages">0</div>
+                <div class="stat-label">Медиафайлов</div>
             </div>
         </div>
 
@@ -296,21 +376,55 @@
                 <h2 id="modalTitle">Редактирование статьи</h2>
                 <span class="close-modal" onclick="closeModal()">&times;</span>
             </div>
-            <div class="form-group">
-                <label>Заголовок статьи</label>
-                <input type="text" id="articleTitle" placeholder="Заголовок статьи">
+            <div class="tabs">
+                <div class="tab active" data-tab="edit" onclick="switchTab('edit')">Редактор</div>
+                <div class="tab" data-tab="preview" onclick="switchTab('preview')">Предпросмотр</div>
             </div>
-            <div class="form-group">
-                <label>Имя файла (например: 2fa-telegram.html)</label>
-                <input type="text" id="articleFilename" placeholder="filename.html">
+            <div id="tab-edit" class="tab-content active">
+                <div class="form-group">
+                    <label>Заголовок статьи</label>
+                    <input type="text" id="articleTitle" placeholder="Заголовок статьи">
+                </div>
+                <div class="form-group">
+                    <label>Имя файла (например: 2fa-telegram.html)</label>
+                    <input type="text" id="articleFilename" placeholder="filename.html">
+                </div>
+                <div class="form-group">
+                    <label>Содержимое статьи</label>
+                    <div class="editor-wrapper">
+                        <div id="editor"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-secondary" onclick="showMediaLibraryForEditor()">Вставить изображение</button>
+                </div>
             </div>
-            <div class="form-group">
-                <label>HTML-содержимое статьи</label>
-                <textarea id="articleContent" placeholder="<h1>Заголовок</h1><p>Текст статьи...</p>"></textarea>
+            <div id="tab-preview" class="tab-content">
+                <iframe id="previewFrame" class="preview-frame" srcdoc=""></iframe>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="margin-top: 1rem;">
                 <button class="btn btn-primary" onclick="saveArticle()">Сохранить на GitHub</button>
                 <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mediaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Медиатека</h2>
+                <span class="close-modal" onclick="closeMediaModal()">&times;</span>
+            </div>
+            <div class="form-group">
+                <label>Загрузить новый файл</label>
+                <input type="file" id="mediaUpload" accept="image/*,video/*" onchange="uploadMediaFile(this)">
+                <small>Поддерживаются: PNG, JPG, GIF, SVG, MP4</small>
+            </div>
+            <div class="form-group">
+                <label>Доступные медиафайлы (нажмите для копирования ссылки)</label>
+                <div id="mediaList" class="media-grid">
+                    <div class="loading">Загрузка...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -336,12 +450,16 @@
 
     <div id="status" class="status"></div>
 
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script>
         const REPO_OWNER = 'EffectGTH';
         const REPO_NAME = 'EffectGTH.github.io';
         const BRANCH = 'main';
         
         let currentArticles = [];
+        let quillEditor = null;
+        let currentEditFilename = null;
+        let mediaFiles = [];
         
         function showStatus(message, isError) {
             const statusDiv = document.getElementById('status');
@@ -377,16 +495,25 @@
             return true;
         }
         
-        async function uploadToGitHub(filename, content, isNew) {
+        async function uploadToGitHub(filename, content, isNew, contentType) {
             const token = getGitHubToken();
             if (!token) {
                 showStatus('Не настроен GitHub токен', true);
                 return false;
             }
             
-            const path = `articles/${filename}`;
+            let path = `articles/${filename}`;
+            if (contentType === 'image' || contentType === 'video') {
+                path = `images/${filename}`;
+            }
+            
             const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
-            const encodedContent = btoa(unescape(encodeURIComponent(content)));
+            let encodedContent = content;
+            
+            if (contentType !== 'image' && contentType !== 'video') {
+                encodedContent = btoa(unescape(encodeURIComponent(content)));
+            }
+            
             let sha = null;
             
             if (!isNew) {
@@ -405,7 +532,7 @@
             }
             
             const body = {
-                message: isNew ? `Добавлена статья ${filename}` : `Обновлена статья ${filename}`,
+                message: isNew ? `Добавлен файл ${filename}` : `Обновлён файл ${filename}`,
                 content: encodedContent,
                 branch: BRANCH
             };
@@ -439,14 +566,14 @@
             }
         }
         
-        async function deleteFromGitHub(filename) {
+        async function deleteFromGitHub(filename, isImage) {
             const token = getGitHubToken();
             if (!token) {
                 showStatus('Не настроен GitHub токен', true);
                 return false;
             }
             
-            const path = `articles/${filename}`;
+            const path = isImage ? `images/${filename}` : `articles/${filename}`;
             const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
             
             try {
@@ -472,7 +599,7 @@
                         'Accept': 'application/vnd.github.v3+json'
                     },
                     body: JSON.stringify({
-                        message: `Удалена статья ${filename}`,
+                        message: `Удалён файл ${filename}`,
                         sha: data.sha,
                         branch: BRANCH
                     })
@@ -492,7 +619,135 @@
             }
         }
         
-        async function runGenerator() {
+        async function uploadMediaFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const fileExt = file.name.split('.').pop().toLowerCase();
+            const isImage = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(fileExt);
+            const isVideo = ['mp4', 'webm', 'mov'].includes(fileExt);
+            
+            if (!isImage && !isVideo) {
+                showStatus('Неподдерживаемый тип файла', true);
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64 = e.target.result.split(',')[1];
+                const filename = `${Date.now()}_${file.name}`;
+                const success = await uploadToGitHub(filename, base64, true, isImage ? 'image' : 'video');
+                if (success) {
+                    showStatus('Файл загружен', false);
+                    loadMediaLibrary();
+                }
+            };
+            reader.readAsDataURL(file);
+            input.value = '';
+        }
+        
+        async function loadMediaLibrary() {
+            const container = document.getElementById('mediaList');
+            if (!container) return;
+            
+            container.innerHTML = '<div class="loading">Загрузка...</div>';
+            mediaFiles = [];
+            
+            const token = getGitHubToken();
+            if (!token) {
+                container.innerHTML = '<div>Токен не настроен</div>';
+                return;
+            }
+            
+            try {
+                const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/images`;
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    mediaFiles = data.filter(item => !item.name.endsWith('.gitkeep'));
+                    
+                    document.getElementById('totalImages').textContent = mediaFiles.length;
+                    
+                    if (mediaFiles.length === 0) {
+                        container.innerHTML = '<div>Нет медиафайлов. Загрузите первый.</div>';
+                        return;
+                    }
+                    
+                    container.innerHTML = '';
+                    mediaFiles.forEach(file => {
+                        const ext = file.name.split('.').pop().toLowerCase();
+                        const isImage = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(ext);
+                        const fileUrl = `../images/${file.name}`;
+                        
+                        const item = document.createElement('div');
+                        item.className = 'media-item';
+                        item.onclick = () => copyToClipboard(fileUrl);
+                        
+                        if (isImage) {
+                            item.innerHTML = `
+                                <img src="${fileUrl}" alt="${file.name}">
+                                <div style="font-size:0.7rem; margin-top:0.3rem;">${file.name.substring(0, 15)}</div>
+                            `;
+                        } else {
+                            item.innerHTML = `
+                                <video src="${fileUrl}" style="width:100%; height:80px; object-fit:cover;"></video>
+                                <div style="font-size:0.7rem; margin-top:0.3rem;">${file.name.substring(0, 15)}</div>
+                            `;
+                        }
+                        container.appendChild(item);
+                    });
+                } else {
+                    container.innerHTML = '<div>Папка images пуста или не создана</div>';
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки медиа:', error);
+                container.innerHTML = '<div>Ошибка загрузки медиафайлов</div>';
+            }
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            showStatus(`Ссылка скопирована: ${text}`, false);
+        }
+        
+        function insertImageToEditor(imageUrl) {
+            if (quillEditor) {
+                const range = quillEditor.getSelection();
+                if (range) {
+                    quillEditor.insertEmbed(range.index, 'image', imageUrl);
+                } else {
+                    quillEditor.insertEmbed(quillEditor.getLength() - 1, 'image', imageUrl);
+                }
+            }
+        }
+        
+        function showMediaLibrary() {
+            loadMediaLibrary();
+            document.getElementById('mediaModal').style.display = 'flex';
+        }
+        
+        function showMediaLibraryForEditor() {
+            loadMediaLibrary();
+            document.getElementById('mediaModal').style.display = 'flex';
+            
+            const closeHandler = () => {};
+            const originalClose = document.getElementById('mediaModal').querySelector('.close-modal').onclick;
+            document.getElementById('mediaModal').querySelector('.close-modal').onclick = () => {
+                closeMediaModal();
+            };
+        }
+        
+        function closeMediaModal() {
+            document.getElementById('mediaModal').style.display = 'none';
+        }
+        
+        function runGenerator() {
             const token = getGitHubToken();
             if (!token) {
                 showStatus('Не настроен GitHub токен', true);
@@ -504,26 +759,22 @@
             const workflowUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/generate-json.yml/dispatches`;
             
             try {
-                const response = await fetch(workflowUrl, {
+                fetch(workflowUrl, {
                     method: 'POST',
                     headers: {
                         'Authorization': `token ${token}`,
                         'Content-Type': 'application/json',
                         'Accept': 'application/vnd.github.v3+json'
                     },
-                    body: JSON.stringify({
-                        ref: BRANCH
-                    })
+                    body: JSON.stringify({ ref: BRANCH })
+                }).then(response => {
+                    if (response.ok) {
+                        showStatus('Генератор запущен. Обновите страницу через минуту.', false);
+                        setTimeout(() => refreshArticles(), 30000);
+                    } else {
+                        showStatus('Создайте файл .github/workflows/generate-json.yml', true);
+                    }
                 });
-                
-                if (response.ok) {
-                    showStatus('Генератор запущен. Обновите страницу через минуту.', false);
-                    setTimeout(() => {
-                        refreshArticles();
-                    }, 30000);
-                } else {
-                    showStatus('Для автоматического запуска создайте файл .github/workflows/generate-json.yml', true);
-                }
             } catch (error) {
                 showStatus('Нужно создать workflow для автоматической генерации', true);
             }
@@ -593,6 +844,60 @@
             }
         }
         
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            if (tabName === 'preview') {
+                updatePreview();
+            }
+        }
+        
+        function updatePreview() {
+            const title = document.getElementById('articleTitle').value;
+            let content = '';
+            
+            if (quillEditor) {
+                content = quillEditor.root.innerHTML;
+            }
+            
+            const previewHtml = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${escapeHtml(title)}</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style-password.css">
+    <style>
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        img { max-width: 100%; height: auto; border-radius: 0.5rem; }
+        video { max-width: 100%; border-radius: 0.5rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="../index.html" class="back-button">На главную</a>
+    <div class="hero">
+        <h1 class="page-title">${escapeHtml(title)}</h1>
+    </div>
+    <div class="general-tips">
+        ${content}
+    </div>
+    <div class="footer-note">Безопасность начинается с вас.</div>
+</div>
+</body>
+</html>`;
+            
+            const previewFrame = document.getElementById('previewFrame');
+            if (previewFrame) {
+                previewFrame.srcdoc = previewHtml;
+            }
+        }
+        
         async function editArticle(filename) {
             const token = getGitHubToken();
             if (!token) {
@@ -600,6 +905,8 @@
                 showTokenSettings();
                 return;
             }
+            
+            currentEditFilename = filename;
             
             try {
                 const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/articles/${filename}`;
@@ -617,11 +924,29 @@
                     const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
                     const title = titleMatch ? titleMatch[1] : '';
                     
+                    const bodyMatch = content.match(/<div class="general-tips">([\s\S]*?)<\/div>/i);
+                    let bodyHtml = '';
+                    if (bodyMatch) {
+                        bodyHtml = bodyMatch[1];
+                        const headingMatch = bodyHtml.match(/<h3>.*?<\/h3>/);
+                        if (headingMatch) {
+                            bodyHtml = bodyHtml.replace(headingMatch[0], '');
+                        }
+                    }
+                    
                     document.getElementById('articleTitle').value = title;
                     document.getElementById('articleFilename').value = filename;
-                    document.getElementById('articleContent').value = content;
+                    
+                    if (quillEditor) {
+                        quillEditor.root.innerHTML = bodyHtml;
+                    }
+                    
                     document.getElementById('modalTitle').textContent = 'Редактирование статьи';
                     document.getElementById('editorModal').style.display = 'flex';
+                    
+                    if (quillEditor) {
+                        setTimeout(() => updatePreview(), 100);
+                    }
                 } else {
                     showStatus('Не удалось загрузить файл с GitHub', true);
                 }
@@ -631,47 +956,26 @@
         }
         
         function createNewArticle() {
-            const template = `<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Новая статья</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/style-password.css">
-</head>
-<body>
-<div class="container">
-    <a href="../index.html" class="back-button">На главную</a>
-    
-    <div class="hero">
-        <h1 class="page-title">Заголовок статьи</h1>
-        <div class="hero-badge">Категория</div>
-    </div>
-    
-    <div class="general-tips">
-        <h3>Содержание статьи</h3>
-        <p>Напишите здесь текст статьи...</p>
-    </div>
-    
-    <div class="footer-note">
-        Безопасность начинается с вас.
-    </div>
-</div>
-</body>
-</html>`;
-            
             document.getElementById('articleTitle').value = '';
             document.getElementById('articleFilename').value = '';
-            document.getElementById('articleContent').value = template;
+            
+            if (quillEditor) {
+                quillEditor.root.innerHTML = '<p>Напишите здесь текст статьи...</p>';
+            }
+            
             document.getElementById('modalTitle').textContent = 'Создание новой статьи';
             document.getElementById('editorModal').style.display = 'flex';
+            setTimeout(() => updatePreview(), 100);
         }
         
         async function saveArticle() {
             const title = document.getElementById('articleTitle').value;
             let filename = document.getElementById('articleFilename').value;
-            let content = document.getElementById('articleContent').value;
+            let contentHtml = '';
+            
+            if (quillEditor) {
+                contentHtml = quillEditor.root.innerHTML;
+            }
             
             if (!filename) {
                 showStatus('Укажите имя файла', true);
@@ -682,12 +986,37 @@
                 filename += '.html';
             }
             
-            if (title && !content.includes('<h1>')) {
-                content = `<h1>${escapeHtml(title)}</h1>\n` + content;
-            }
+            const fullHtml = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${escapeHtml(title)}</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style-password.css">
+</head>
+<body>
+<div class="container">
+    <a href="../index.html" class="back-button">На главную</a>
+    
+    <div class="hero">
+        <h1 class="page-title">${escapeHtml(title)}</h1>
+        <div class="hero-badge">Статья</div>
+    </div>
+    
+    <div class="general-tips">
+        ${contentHtml}
+    </div>
+    
+    <div class="footer-note">
+        Безопасность начинается с вас.
+    </div>
+</div>
+</body>
+</html>`;
             
             const isNew = !currentArticles.some(a => a.filename === filename);
-            const success = await uploadToGitHub(filename, content, isNew);
+            const success = await uploadToGitHub(filename, fullHtml, isNew, 'html');
             
             if (success) {
                 closeModal();
@@ -698,7 +1027,7 @@
         async function deleteArticle(filename) {
             if (!confirm(`Удалить статью ${filename}?`)) return;
             
-            const success = await deleteFromGitHub(filename);
+            const success = await deleteFromGitHub(filename, false);
             if (success) {
                 setTimeout(() => refreshArticles(), 3000);
             }
@@ -717,6 +1046,7 @@
                 showStatus('Токен сохранён', false);
                 closeTokenModal();
                 checkToken();
+                loadMediaLibrary();
             } else {
                 showStatus('Введите токен', true);
             }
@@ -724,6 +1054,7 @@
         
         function closeModal() {
             document.getElementById('editorModal').style.display = 'none';
+            switchTab('edit');
         }
         
         function closeTokenModal() {
@@ -748,6 +1079,34 @@
         if (checkAuth()) {
             checkToken();
             refreshArticles();
+            loadMediaLibrary();
+            
+            quillEditor = new Quill('#editor', {
+                theme: 'snow',
+                placeholder: 'Напишите содержание статьи...',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote', 'code-block'],
+                        [{ 'header': 1 }, { 'header': 2 }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'font': [] }],
+                        [{ 'align': [] }],
+                        ['clean'],
+                        ['link', 'image', 'video']
+                    ]
+                }
+            });
+            
+            quillEditor.on('text-change', function() {
+                updatePreview();
+            });
         }
     </script>
 </body>
