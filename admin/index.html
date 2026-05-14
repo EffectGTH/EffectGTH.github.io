@@ -920,31 +920,34 @@
                     
                     let bodyHtml = '';
                     
-                    const containerMatch = content.match(/<div class="container">([\s\S]*?)<\/div>\s*<\/div>\s*<\/body>/i);
-                    if (containerMatch) {
-                        let innerContent = containerMatch[1];
-                        
-                        const heroMatch = innerContent.match(/<div class="hero">[\s\S]*?<\/div>/i);
-                        if (heroMatch) {
-                            innerContent = innerContent.replace(heroMatch[0], '');
+                    const editableMatch = content.match(/<div class="editable-content">([\s\S]*?)<\/div>\s*<!-- КОНЕЦ РЕДАКТИРУЕМОГО БЛОКА -->/i);
+                    if (editableMatch) {
+                        bodyHtml = editableMatch[1].trim();
+                        console.log('Найден editable-content, длина:', bodyHtml.length);
+                    }
+                    
+                    if (!bodyHtml || bodyHtml === '') {
+                        const containerMatch = content.match(/<div class="container">([\s\S]*?)<\/div>\s*<\/div>\s*<\/body>/i);
+                        if (containerMatch) {
+                            let innerContent = containerMatch[1];
+                            
+                            const heroMatch = innerContent.match(/<div class="hero">[\s\S]*?<\/div>/i);
+                            if (heroMatch) {
+                                innerContent = innerContent.replace(heroMatch[0], '');
+                            }
+                            
+                            const backButtonMatch = innerContent.match(/<a[^>]*class="back-button"[^>]*>[\s\S]*?<\/a>/i);
+                            if (backButtonMatch) {
+                                innerContent = innerContent.replace(backButtonMatch[0], '');
+                            }
+                            
+                            const footerNoteMatch = innerContent.match(/<div class="footer-note">[\s\S]*?<\/div>/i);
+                            if (footerNoteMatch) {
+                                innerContent = innerContent.replace(footerNoteMatch[0], '');
+                            }
+                            
+                            bodyHtml = innerContent.trim();
                         }
-                        
-                        const backButtonMatch = innerContent.match(/<a[^>]*class="back-button"[^>]*>[\s\S]*?<\/a>/i);
-                        if (backButtonMatch) {
-                            innerContent = innerContent.replace(backButtonMatch[0], '');
-                        }
-                        
-                        const footerNoteMatch = innerContent.match(/<div class="footer-note">[\s\S]*?<\/div>/i);
-                        if (footerNoteMatch) {
-                            innerContent = innerContent.replace(footerNoteMatch[0], '');
-                        }
-                        
-                        const pageWrapperMatch = innerContent.match(/<div class="page-wrapper">[\s\S]*?<\/div>/i);
-                        if (pageWrapperMatch) {
-                            innerContent = innerContent.replace(pageWrapperMatch[0], '');
-                        }
-                        
-                        bodyHtml = innerContent.trim();
                     }
                     
                     if (!bodyHtml || bodyHtml === '') {
@@ -1009,34 +1012,67 @@
                 contentHtml = '<p>Содержимое статьи</p>';
             }
             
-            const fullHtml = `<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${escapeHtml(title)}</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/style-password.css">
-</head>
-<body>
-<div class="container">
-    <a href="../index.html" class="back-button">На главную</a>
-    
-    <div class="hero">
-        <h1 class="page-title">${escapeHtml(title)}</h1>
-        <div class="hero-badge">Статья</div>
-    </div>
-    
-    <div class="general-tips">
-        ${contentHtml}
-    </div>
-    
-    <div class="footer-note">
-        Безопасность начинается с вас.
-    </div>
-</div>
-</body>
-</html>`;
+            let existingContent = null;
+            let hasEditableBlock = false;
+            const token = getGitHubToken();
+            
+            if (token) {
+                try {
+                    const checkUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/articles/${filename}`;
+                    const checkResponse = await fetch(checkUrl, {
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    if (checkResponse.ok) {
+                        const data = await checkResponse.json();
+                        existingContent = decodeURIComponent(escape(atob(data.content)));
+                        hasEditableBlock = existingContent.includes('class="editable-content"');
+                    }
+                } catch (e) {}
+            }
+            
+            let fullHtml;
+            
+            if (hasEditableBlock && existingContent) {
+                const editableMatch = existingContent.match(/<div class="editable-content">([\s\S]*?)<\/div>\s*<!-- КОНЕЦ РЕДАКТИРУЕМОГО БЛОКА -->/i);
+                if (editableMatch) {
+                    fullHtml = existingContent.replace(editableMatch[1], contentHtml);
+                } else {
+                    fullHtml = existingContent.replace(/<div class="editable-content">[\s\S]*?<\/div>/i, `<div class="editable-content">\n    ${contentHtml}\n    </div>`);
+                }
+            } else {
+                const heroBadge = filename.includes('2fa') ? 'Двухфакторная аутентификация' : (filename.includes('privacy') ? 'Приватность' : 'Статья');
+                fullHtml = `<!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>${escapeHtml(title)}</title>
+            <link rel="stylesheet" href="../css/style.css">
+            <link rel="stylesheet" href="../css/style-password.css">
+        </head>
+        <body>
+        <div class="container">
+            <a href="../index.html" class="back-button">На главную</a>
+            
+            <div class="hero">
+                <h1 class="page-title">${escapeHtml(title)}</h1>
+                <div class="hero-badge">${escapeHtml(heroBadge)}</div>
+            </div>
+            
+            <div class="editable-content">
+                ${contentHtml}
+            </div>
+            
+            <div class="footer-note">
+                Безопасность начинается с вас.
+            </div>
+        </div>
+        </body>
+        </html>`;
+            }
             
             const isNew = !currentArticles.some(a => a.filename === filename);
             const success = await uploadToGitHub(filename, fullHtml, isNew, 'html');
