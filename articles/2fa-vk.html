@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Двухфакторная аутентификация ВКонтакте (VK): пошаговая инструкция</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style-password.css">
+    <style>
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+            padding-left: 0;
+            margin: 1.5rem 0;
+        }
+        .step-list li {
+            counter-increment: step-counter;
+            margin-bottom: 1.2rem;
+            padding-left: 2.8rem;
+            position: relative;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--text-soft);
+        }
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1.8rem;
+            height: 1.8rem;
+            background: var(--accent-teal);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .info-note {
+            background: #eef2fa;
+            border-left: 4px solid var(--accent-teal);
+            padding: 1rem 1.2rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        .warning-note {
+            background: #fff0e0;
+            border-left: 4px solid #e67e22;
+            padding: 1rem 1.2rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        .success-note {
+            background: #e0f5ea;
+            border-left: 4px solid #27ae60;
+            padding: 1rem 1.2rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        .checklist-simple {
+            background: rgba(255,255,245,0.8);
+            border-radius: 1.2rem;
+            padding: 0.8rem 1.5rem 0.8rem 1.5rem;
+            margin: 0.5rem 0 1rem 0;
+        }
+        .checklist-simple li {
+            display: flex;
+            align-items: baseline;
+            gap: 0.8rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(44,122,110,0.1);
+        }
+        .checklist-simple li:last-child {
+            border-bottom: none;
+        }
+        .checklist-simple input {
+            width: 1.1rem;
+            height: 1.1rem;
+            accent-color: var(--accent-teal);
+            flex-shrink: 0;
+            margin-top: 0.2rem;
+        }
+        .password-card .card-body h3 {
+            margin-bottom: 0.25rem;
+        }
+        .menu-toggle, .side-menu, .overlay {
+            z-index: 1100;
+        }
+        .side-menu a::before {
+            content: none;
+        }
+        .side-menu a {
+            padding-left: 1rem;
+        }
+        @media (max-width: 680px) {
+            .step-list li {
+                font-size: 0.9rem;
+                padding-left: 2.2rem;
+            }
+            .step-list li::before {
+                width: 1.5rem;
+                height: 1.5rem;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="menu-toggle" id="menuToggle">
+    <span></span>
+</div>
+<div class="overlay" id="overlay"></div>
+<div class="side-menu" id="sideMenu">
+    <button class="close-menu" id="closeMenuBtn">✕</button>
+    <div id="sideMenuContent">
+        <div class="loader-sections">Загрузка разделов...</div>
+    </div>
+</div>
+
+<div class="container">
+    <a href="../index.html" class="back-button">← На главную</a>
+
+    <div class="hero">
+        <h1 class="page-title">Двухфакторная аутентификация в VK</h1>
+        <div class="hero-badge">ВКонтакте · Подтверждение входа · Защита аккаунта</div>
+    </div>
+
+    <!-- РЕДАКТИРУЕМЫЙ БЛОК ДЛЯ АДМИНКИ -->
+    <div class="editable-content">
+        <div class="general-tips" style="margin-bottom: 1.5rem;">
+            <h3>Что такое двухфакторная аутентификация (2FA) во ВКонтакте?</h3>
+            <p>ВКонтакте использует номер телефона и SMS-код для входа. Но если злоумышленники смогут перехватить SMS или украсть SIM-карту, они получат доступ к вашему аккаунту. <strong>Двухфакторная аутентификация</strong> добавляет второй уровень защиты: после ввода пароля и SMS-кода система попросит ввести дополнительный код из приложения-аутентификатора (Google Authenticator, Яндекс Ключ и др.).</p>
+            <div class="info-note">
+                <span style="font-size:1.2rem; margin-right:0.3rem;">🔐</span> <strong>Важно:</strong> Включив двухфакторную аутентификацию, вы защитите аккаунт даже в случае кражи пароля или SIM-карты.
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header">
+                <h3>Пошаговая инструкция: как включить двухфакторную аутентификацию во ВКонтакте</h3>
+            </div>
+            <div class="card-body">
+                <div>
+                    Скриншот: Настройки → Безопасность → Подтверждение входа
+                </div>
+                
+                <ul class="step-list">
+                    <li><strong>Зайдите в «Настройки»</strong> вашего аккаунта ВКонтакте (нажмите на свой аватар в правом верхнем углу → «Настройки»).</li>
+                    <li>Перейдите на вкладку <strong>«Безопасность»</strong>.</li>
+                    <li>Найдите блок <strong>«Подтверждение входа»</strong> и нажмите кнопку <strong>«Подключить»</strong>.</li>
+                    <li>Подтвердите свой номер телефона (если ещё не подтверждён).</li>
+                    <li><strong>Сохраните резервные коды</strong>, которые предложит система. Запишите их на бумагу и храните в надёжном месте. Они понадобятся, если вы потеряете доступ к телефону.</li>
+                    <li>Выберите удобный способ получения кодов: <strong>SMS</strong> или <strong>приложение-аутентификатор</strong> (Google Authenticator, Яндекс Ключ и др.). Приложение-аутентификатор надёжнее, так как не зависит от сети и SIM-карты.</li>
+                    <li>Следуйте инструкциям на экране: отсканируйте QR-код через приложение-аутентификатор или введите код из SMS.</li>
+                    <li>Нажмите <strong>«Готово»</strong> или «Подключить». Готово! Теперь при каждом входе в VK потребуется вводить код из приложения (или SMS) после пароля.</li>
+                </ul>
+
+                <div class="warning-note">
+                    <span style="font-size:1.2rem; margin-right:0.3rem;">⚠️</span> <strong>Внимание:</strong> Обязательно сохраните резервные коды! Если вы потеряете телефон и не сможете получить код из приложения, резервные коды помогут восстановить доступ.
+                </div>
+
+                <div class="success-note">
+                    <span style="font-size:1.2rem; margin-right:0.3rem;">✅</span> <strong>Совет:</strong> Установите приложение-аутентификатор (например, Google Authenticator или Яндекс Ключ) заранее. Оно работает без интернета и безопаснее SMS.
+                </div>
+
+                <div class="source-link" style="margin-top: 1.5rem;">
+                    📘 Официальный источник ВКонтакте: <a href="https://vk.com/faq18112" target="_blank" rel="noopener noreferrer">Как включить двухфакторную аутентификацию?</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header">
+                <span style="font-size: 1.8rem;">✅</span>
+                <h3>Чек-лист: всё ли вы сделали правильно</h3>
+            </div>
+            <div class="card-body">
+                <ul class="checklist-simple" id="vk-2fa-checklist">
+                    <li><input type="checkbox" id="vk_check1"> <label for="vk_check1">Я подключил(а) подтверждение входа в настройках безопасности VK</label></li>
+                    <li><input type="checkbox" id="vk_check2"> <label for="vk_check2">Я сохранил(а) резервные коды (записал на бумагу)</label></li>
+                    <li><input type="checkbox" id="vk_check3"> <label for="vk_check3">Я выбрал способ получения кодов (приложение-аутентификатор или SMS)</label></li>
+                    <li><input type="checkbox" id="vk_check4"> <label for="vk_check4">Я установил(а) приложение-аутентификатор (Google Authenticator или Яндекс Ключ)</label></li>
+                    <li><input type="checkbox" id="vk_check5"> <label for="vk_check5">Я проверил(а), что код из приложения работает (вышел и зашёл заново)</label></li>
+                </ul>
+                <div style="margin-top: 0.8rem;">
+                    <button id="resetVkChecklist" class="reset-checklist">Сбросить все отметки</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="general-tips" style="border-left: 6px solid var(--accent-teal);">
+            <h3>Часто задаваемые вопросы</h3>
+            <p><strong>❓ Что делать, если я потерял телефон с приложением-аутентификатором?</strong><br>Используйте резервные коды, которые вы сохранили. Они одноразовые, каждый код можно применить только один раз.</p>
+            <p><strong>❓ Можно ли отключить двухфакторную аутентификацию?</strong><br>Да, в тех же настройках «Безопасность» вы можете отключить подтверждение входа. Но мы не рекомендуем этого делать — это снизит защиту аккаунта.</p>
+            <p><strong>❓ Обязательно ли использовать приложение-аутентификатор или можно только SMS?</strong><br>Можно выбрать SMS, но приложение-аутентификатор надёжнее (не зависит от оператора связи и SIM-карты). Рекомендуем именно его.</p>
+            <p><strong>❓ Код из приложения не подходит. Что делать?</strong><br>Проверьте точное время на телефоне — для работы аутентификатора нужно синхронизировать время (в настройках телефона включите «Автоматическая установка времени»).</p>
+        </div>
+    </div>
+    <!-- КОНЕЦ РЕДАКТИРУЕМОГО БЛОКА -->
+</div>
+
+<script>
+    (function() {
+        const checkboxes = document.querySelectorAll('#vk-2fa-checklist input[type="checkbox"]');
+        const resetBtn = document.getElementById('resetVkChecklist');
+
+        function saveChecklistState() {
+            const states = {};
+            checkboxes.forEach(cb => { states[cb.id] = cb.checked; });
+            localStorage.setItem('vk_2fa_checklist', JSON.stringify(states));
+        }
+
+        function loadChecklistState() {
+            const saved = localStorage.getItem('vk_2fa_checklist');
+            if (saved) {
+                try {
+                    const states = JSON.parse(saved);
+                    checkboxes.forEach(cb => { if (states[cb.id]) cb.checked = states[cb.id]; });
+                } catch(e) {}
+            }
+        }
+
+        function resetChecklist() {
+            checkboxes.forEach(cb => cb.checked = false);
+            saveChecklistState();
+        }
+
+        checkboxes.forEach(cb => cb.addEventListener('change', saveChecklistState));
+        if (resetBtn) resetBtn.addEventListener('click', resetChecklist);
+        loadChecklistState();
+    })();
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function renderSideMenu(sections, currentPage) {
+        const container = document.getElementById('sideMenuContent');
+        if (!container) return;
+        if (!sections || sections.length === 0) {
+            container.innerHTML = '<div class="error-msg">Нет доступных разделов</div>';
+            return;
+        }
+
+        let html = '<h4 style="margin-top: 0; margin-bottom: 0.8rem; color: var(--accent-dark);">Разделы по безопасности</h4>';
+        
+        sections.forEach(section => {
+            if (section.type === 'simple') {
+                const isCurrent = section.link === currentPage;
+                html += `
+                    <div style="margin-bottom: 0.6rem;">
+                        <strong style="display: block; padding: 0.3rem 1rem; background: ${isCurrent ? 'rgba(44,122,110,0.1)' : 'transparent'}; border-radius: 2rem;">${escapeHtml(section.title)}</strong>
+                        <a href="${section.link}" style="padding-left: 1.8rem;">${isCurrent ? 'Текущая страница' : (section.linkText || 'Перейти →')}</a>
+                    </div>
+                `;
+            } else if (section.type === 'submenu' && section.platforms) {
+                html += `
+                    <div style="margin-bottom: 0.6rem;">
+                        <strong style="display: block; padding: 0.3rem 1rem;">${escapeHtml(section.title)}</strong>
+                        ${section.platforms.map(p => `<a href="${p.url}" style="padding-left: 1.8rem;">${escapeHtml(p.name)}</a>`).join('')}
+                    </div>
+                `;
+            }
+        });
+        
+        container.innerHTML = html;
+    }
+
+    function loadSideMenu() {
+        const currentPage = '2fa-vk.html';
+        fetch('../data.json')
+            .then(response => {
+                if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.sections && Array.isArray(data.sections)) {
+                    renderSideMenu(data.sections, currentPage);
+                } else {
+                    throw new Error('В data.json отсутствует массив sections');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки data.json:', error);
+                document.getElementById('sideMenuContent').innerHTML = `<div class="error-msg">⚠️ Не удалось загрузить разделы.<br><small>${error.message}</small></div>`;
+            });
+    }
+
+    (function() {
+        const menuToggle = document.getElementById('menuToggle');
+        const sideMenu = document.getElementById('sideMenu');
+        const overlay = document.getElementById('overlay');
+        const closeBtn = document.getElementById('closeMenuBtn');
+        function openMenu() { sideMenu.classList.add('open'); overlay.classList.add('active'); }
+        function closeMenu() { sideMenu.classList.remove('open'); overlay.classList.remove('active'); }
+        if (menuToggle) menuToggle.addEventListener('click', openMenu);
+        if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+        if (overlay) overlay.addEventListener('click', closeMenu);
+    })();
+
+    loadSideMenu();
+</script>
+</body>
+</html>
