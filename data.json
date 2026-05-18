@@ -13,8 +13,16 @@
       "type": "submenu",
       "platforms": [
         {
+          "name": "МАХ",
+          "url": "articles/2fa-max.html"
+        },
+        {
           "name": "Telegram",
           "url": "articles/2fa-telegram.html"
+        },
+        {
+          "name": "VK",
+          "url": "articles/2fa-vk.html"
         }
       ]
     }
