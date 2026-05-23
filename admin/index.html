@@ -170,10 +170,10 @@
         }
         .modal-content {
             background: white;
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: 1rem;
             width: 95%;
-            max-width: 1200px;
+            max-width: 1400px;
             max-height: 90vh;
             overflow-y: auto;
         }
@@ -181,7 +181,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             padding-bottom: 0.5rem;
             border-bottom: 1px solid #eee;
         }
@@ -202,17 +202,51 @@
             margin-bottom: 0.3rem;
             color: #1f5e54;
         }
-        input, textarea {
+        input {
             width: 100%;
             padding: 0.7rem;
             border: 1px solid #cbdcd6;
             border-radius: 0.5rem;
             font-size: 0.9rem;
-            font-family: monospace;
         }
         textarea {
-            min-height: 500px;
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #cbdcd6;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-family: 'Courier New', monospace;
+            min-height: 550px;
             resize: vertical;
+        }
+        .preview-frame {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #cbdcd6;
+            border-radius: 0.5rem;
+            background: white;
+        }
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #cbdcd6;
+            padding-bottom: 0.5rem;
+        }
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+        }
+        .tab.active {
+            background: #2c7a6e;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
         }
         .status {
             position: fixed;
@@ -263,35 +297,6 @@
             object-fit: cover;
             border-radius: 0.3rem;
         }
-        .preview-frame {
-            width: 100%;
-            height: 500px;
-            border: 1px solid #cbdcd6;
-            border-radius: 0.5rem;
-            background: white;
-        }
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid #cbdcd6;
-            padding-bottom: 0.5rem;
-        }
-        .tab {
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            border-radius: 0.5rem;
-        }
-        .tab.active {
-            background: #2c7a6e;
-            color: white;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
         @media (max-width: 768px) {
             .admin-container { padding: 1rem; }
             .articles-header, .article-row {
@@ -301,8 +306,6 @@
             .articles-header { display: none; }
             .article-row { padding: 0.8rem; }
             .action-buttons { margin-top: 0.5rem; }
-            .modal-content { width: 95%; padding: 1rem; }
-            textarea { min-height: 300px; }
         }
     </style>
 </head>
@@ -311,7 +314,7 @@
         <div class="header">
             <h1>Админ-панель управления статьями</h1>
             <div class="btn-group">
-                <button class="btn btn-primary" onclick="refreshArticles()">Обновить</button>
+                <button class="btn btn-primary" onclick="refreshArticles()">Обновить список</button>
                 <button class="btn btn-primary" onclick="createNewArticle()">Новая статья</button>
                 <button class="btn btn-warning" onclick="runGenerator()">Запустить генератор</button>
                 <button class="btn btn-secondary" onclick="showMediaLibrary()">Медиатека</button>
@@ -359,27 +362,23 @@
                 <span class="close-modal" onclick="closeModal()">&times;</span>
             </div>
             <div class="tabs">
-                <div class="tab active" data-tab="edit" onclick="switchTab('edit')">Редактор</div>
+                <div class="tab active" data-tab="edit" onclick="switchTab('edit')">HTML редактор</div>
                 <div class="tab" data-tab="preview" onclick="switchTab('preview')">Предпросмотр</div>
             </div>
             <div id="tab-edit" class="tab-content active">
-                <div class="form-group">
-                    <label>Заголовок статьи</label>
-                    <input type="text" id="articleTitle" placeholder="Заголовок статьи">
-                </div>
                 <div class="form-group">
                     <label>Имя файла (например: 2fa-telegram.html)</label>
                     <input type="text" id="articleFilename" placeholder="filename.html">
                 </div>
                 <div class="form-group">
-                    <label>Содержимое статьи (HTML-код внутри блока editable-content)</label>
-                    <textarea id="articleContent" placeholder="<p>Текст статьи...</p>"></textarea>
+                    <label>Полный HTML-код файла</label>
+                    <textarea id="articleContent" placeholder="<!DOCTYPE html>..."></textarea>
                     <small style="color: #666; display: block; margin-top: 0.3rem;">
-                        Вставляйте сюда ВСЁ содержимое, которое должно быть между тегами &lt;div class="editable-content"&gt; и &lt;/div&gt;. Для вставки изображений скопируйте ссылку из медиатеки.
+                        Здесь должен быть ПОЛНЫЙ HTML-код страницы, начиная с &lt;!DOCTYPE html&gt;. Для вставки изображений скопируйте ссылку из медиатеки.
                     </small>
                 </div>
                 <div class="form-group">
-                    <button class="btn btn-secondary" onclick="showMediaLibraryForEditor()">Медиатека</button>
+                    <button class="btn btn-secondary" onclick="showMediaLibraryForEditor()">Медиатека (копировать ссылки)</button>
                 </div>
             </div>
             <div id="tab-preview" class="tab-content">
@@ -400,8 +399,8 @@
             </div>
             <div class="form-group">
                 <label>Загрузить новый файл</label>
-                <input type="file" id="mediaUpload" accept="image/*,video/*" onchange="uploadMediaFile(this)">
-                <small>Поддерживаются: PNG, JPG, GIF, SVG, MP4</small>
+                <input type="file" id="mediaUpload" accept="image/*" onchange="uploadMediaFile(this)">
+                <small>Поддерживаются: PNG, JPG, GIF, SVG, WEBP</small>
             </div>
             <div class="form-group">
                 <label>Доступные медиафайлы (нажмите для копирования ссылки)</label>
@@ -439,7 +438,6 @@
         const BRANCH = 'main';
         
         let currentArticles = [];
-        let currentEditFilename = null;
         let mediaFiles = [];
         
         function showStatus(message, isError) {
@@ -486,24 +484,16 @@
             return true;
         }
         
-        async function uploadToGitHub(filename, content, isNew, contentType) {
+        async function uploadToGitHub(filename, content, isNew) {
             const token = getGitHubToken();
             if (!token) {
                 showStatus('Не настроен GitHub токен', true);
                 return false;
             }
             
-            let path = `articles/${filename}`;
-            if (contentType === 'image' || contentType === 'video') {
-                path = `images/${filename}`;
-            }
-            
+            const path = `articles/${filename}`;
             const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
-            let encodedContent = content;
-            
-            if (contentType !== 'image' && contentType !== 'video') {
-                encodedContent = btoa(unescape(encodeURIComponent(content)));
-            }
+            const encodedContent = btoa(unescape(encodeURIComponent(content)));
             
             let sha = null;
             
@@ -557,14 +547,14 @@
             }
         }
         
-        async function deleteFromGitHub(filename, isImage) {
+        async function deleteFromGitHub(filename) {
             const token = getGitHubToken();
             if (!token) {
                 showStatus('Не настроен GitHub токен', true);
                 return false;
             }
             
-            const path = isImage ? `images/${filename}` : `articles/${filename}`;
+            const path = `articles/${filename}`;
             const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
             
             try {
@@ -626,7 +616,7 @@
             reader.onload = async function(e) {
                 const base64 = e.target.result.split(',')[1];
                 const filename = `${Date.now()}_${file.name}`;
-                const success = await uploadToGitHub(filename, base64, true, 'image');
+                const success = await uploadToGitHub(filename, base64, true);
                 if (success) {
                     showStatus(`Файл ${filename} загружен`, false);
                     loadMediaLibrary();
@@ -676,11 +666,7 @@
                         const item = document.createElement('div');
                         item.className = 'media-item';
                         item.onclick = () => copyToClipboard(fileUrl);
-                        
-                        item.innerHTML = `
-                            <img src="${fileUrl}" alt="${file.name}">
-                            <div style="font-size:0.7rem; margin-top:0.3rem;">${file.name.substring(0, 15)}</div>
-                        `;
+                        item.innerHTML = `<img src="${fileUrl}" alt="${file.name}"><div style="font-size:0.7rem; margin-top:0.3rem;">${file.name.substring(0, 15)}</div>`;
                         container.appendChild(item);
                     });
                 } else {
@@ -712,36 +698,7 @@
         }
         
         function runGenerator() {
-            const token = getGitHubToken();
-            if (!token) {
-                showStatus('Не настроен GitHub токен', true);
-                return;
-            }
-            
-            showStatus('Запуск генератора data.json...', false);
-            
-            const workflowUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/generate-json.yml/dispatches`;
-            
-            try {
-                fetch(workflowUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/vnd.github.v3+json'
-                    },
-                    body: JSON.stringify({ ref: BRANCH })
-                }).then(response => {
-                    if (response.ok) {
-                        showStatus('Генератор запущен. Обновите страницу через минуту.', false);
-                        setTimeout(() => refreshArticles(), 30000);
-                    } else {
-                        showStatus('Создайте файл .github/workflows/generate-json.yml', true);
-                    }
-                });
-            } catch (error) {
-                showStatus('Нужно создать workflow для автоматической генерации', true);
-            }
+            showStatus('Генератор data.json запускается через Actions (см. вкладку Actions)', false);
         }
         
         async function refreshArticles() {
@@ -826,40 +783,10 @@
         }
         
         function updatePreview() {
-            const title = document.getElementById('articleTitle').value;
             const content = document.getElementById('articleContent').value;
-            
-            const previewHtml = `<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${escapeHtml(title)}</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/style-password.css">
-    <style>
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-        img { max-width: 100%; height: auto; border-radius: 0.5rem; }
-        video { max-width: 100%; border-radius: 0.5rem; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <a href="../index.html" class="back-button">На главную</a>
-    <div class="hero">
-        <h1 class="page-title">${escapeHtml(title)}</h1>
-    </div>
-    <div class="editable-content">
-        ${content}
-    </div>
-    <div class="footer-note">Безопасность начинается с вас.</div>
-</div>
-</body>
-</html>`;
-            
             const previewFrame = document.getElementById('previewFrame');
             if (previewFrame) {
-                previewFrame.srcdoc = previewHtml;
+                previewFrame.srcdoc = content;
             }
         }
 
@@ -870,8 +797,6 @@
                 showTokenSettings();
                 return;
             }
-            
-            currentEditFilename = filename;
             
             try {
                 const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/articles/${filename}`;
@@ -886,43 +811,12 @@
                     const data = await response.json();
                     const content = decodeURIComponent(escape(atob(data.content)));
                     
-                    console.log('Загружен файл:', filename);
-                    
-                    const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
-                    const title = titleMatch ? titleMatch[1] : '';
-                    
-                    let editableContent = '';
-                    
-                    const editableMatch = content.match(/<div class="editable-content">([\s\S]*?)<\/div>/i);
-                    if (editableMatch) {
-                        editableContent = editableMatch[1].trim();
-                    }
-                    
-                    if (!editableContent) {
-                        const containerMatch = content.match(/<div class="container">([\s\S]*?)<\/div>\s*<\/div>\s*<\/body>/i);
-                        if (containerMatch) {
-                            let inner = containerMatch[1];
-                            inner = inner.replace(/<div class="hero">[\s\S]*?<\/div>/i, '');
-                            inner = inner.replace(/<a[^>]*class="back-button"[^>]*>[\s\S]*?<\/a>/i, '');
-                            inner = inner.replace(/<div class="footer-note">[\s\S]*?<\/div>/i, '');
-                            editableContent = inner.trim();
-                        }
-                    }
-                    
-                    if (!editableContent) {
-                        editableContent = '<p>Содержимое статьи не найдено. Отредактируйте текст вручную.</p>';
-                    }
-                    
-                    document.getElementById('articleTitle').value = title;
                     document.getElementById('articleFilename').value = filename;
-                    document.getElementById('articleContent').value = editableContent;
+                    document.getElementById('articleContent').value = content;
                     
                     document.getElementById('modalTitle').textContent = 'Редактирование статьи';
                     document.getElementById('editorModal').style.display = 'flex';
-                    
-                    setTimeout(() => {
-                        updatePreview();
-                    }, 100);
+                    switchTab('edit');
                 } else {
                     showStatus('Не удалось загрузить файл с GitHub', true);
                 }
@@ -933,19 +827,46 @@
         }
 
         function createNewArticle() {
-            document.getElementById('articleTitle').value = '';
+            const template = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Новая статья</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style-password.css">
+</head>
+<body>
+<div class="container">
+    <a href="../index.html" class="back-button">На главную</a>
+    
+    <div class="hero">
+        <h1 class="page-title">Заголовок статьи</h1>
+        <div class="hero-badge">Категория</div>
+    </div>
+    
+    <div class="general-tips">
+        <p>Напишите здесь текст статьи...</p>
+    </div>
+    
+    <div class="footer-note">
+        Безопасность начинается с вас.
+    </div>
+</div>
+</body>
+</html>`;
+            
             document.getElementById('articleFilename').value = '';
-            document.getElementById('articleContent').value = '<p>Напишите здесь текст статьи...</p>';
+            document.getElementById('articleContent').value = template;
             
             document.getElementById('modalTitle').textContent = 'Создание новой статьи';
             document.getElementById('editorModal').style.display = 'flex';
-            setTimeout(() => updatePreview(), 100);
+            switchTab('edit');
         }
 
         async function saveArticle() {
-            const title = document.getElementById('articleTitle').value;
             let filename = document.getElementById('articleFilename').value;
-            let contentHtml = document.getElementById('articleContent').value;
+            const content = document.getElementById('articleContent').value;
             
             if (!filename) {
                 showStatus('Укажите имя файла', true);
@@ -956,66 +877,13 @@
                 filename += '.html';
             }
             
-            if (!contentHtml || contentHtml === '') {
-                contentHtml = '<p>Содержимое статьи</p>';
-            }
-            
-            let existingContent = null;
-            let fullHtml = '';
-            const token = getGitHubToken();
-            
-            if (token) {
-                try {
-                    const checkUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/articles/${filename}`;
-                    const checkResponse = await fetch(checkUrl, {
-                        headers: {
-                            'Authorization': `token ${token}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
-                    });
-                    if (checkResponse.ok) {
-                        const data = await checkResponse.json();
-                        existingContent = decodeURIComponent(escape(atob(data.content)));
-                    }
-                } catch (e) {}
-            }
-            
-            if (existingContent && existingContent.includes('class="editable-content"')) {
-                fullHtml = existingContent.replace(/<div class="editable-content">[\s\S]*?<\/div>/, `<div class="editable-content">\n    ${contentHtml}\n    </div>`);
-            } else {
-                const heroBadge = filename.includes('2fa') ? 'Двухфакторная аутентификация' : (filename.includes('privacy') ? 'Приватность' : 'Статья');
-                fullHtml = `<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${escapeHtml(title)}</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/style-password.css">
-</head>
-<body>
-<div class="container">
-    <a href="../index.html" class="back-button">На главную</a>
-    
-    <div class="hero">
-        <h1 class="page-title">${escapeHtml(title)}</h1>
-        <div class="hero-badge">${escapeHtml(heroBadge)}</div>
-    </div>
-    
-    <div class="editable-content">
-        ${contentHtml}
-    </div>
-    
-    <div class="footer-note">
-        Безопасность начинается с вас.
-    </div>
-</div>
-</body>
-</html>`;
+            if (!content || content === '') {
+                showStatus('Содержимое статьи не может быть пустым', true);
+                return;
             }
             
             const isNew = !currentArticles.some(a => a.filename === filename);
-            const success = await uploadToGitHub(filename, fullHtml, isNew, 'html');
+            const success = await uploadToGitHub(filename, content, isNew);
             
             if (success) {
                 closeModal();
@@ -1026,7 +894,7 @@
         async function deleteArticle(filename) {
             if (!confirm(`Удалить статью ${filename}?`)) return;
             
-            const success = await deleteFromGitHub(filename, false);
+            const success = await deleteFromGitHub(filename);
             if (success) {
                 setTimeout(() => refreshArticles(), 3000);
             }
