@@ -32,6 +32,10 @@
       "type": "submenu",
       "platforms": [
         {
+          "name": "МАХ",
+          "url": "articles/privacy-max.html"
+        },
+        {
           "name": "Telegram",
           "url": "articles/privacy-telegram.html"
         },
