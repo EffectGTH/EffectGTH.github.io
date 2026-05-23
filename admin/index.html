@@ -211,7 +211,7 @@
             font-family: monospace;
         }
         textarea {
-            min-height: 400px;
+            min-height: 500px;
             resize: vertical;
         }
         .status {
@@ -372,10 +372,10 @@
                     <input type="text" id="articleFilename" placeholder="filename.html">
                 </div>
                 <div class="form-group">
-                    <label>Содержимое статьи (HTML-код)</label>
+                    <label>Содержимое статьи (HTML-код внутри блока editable-content)</label>
                     <textarea id="articleContent" placeholder="<p>Текст статьи...</p>"></textarea>
                     <small style="color: #666; display: block; margin-top: 0.3rem;">
-                        Вы можете вставлять HTML-код. Для вставки изображения используйте кнопку "Медиатека" и скопируйте ссылку.
+                        Вставляйте сюда ВСЁ содержимое, которое должно быть между тегами &lt;div class="editable-content"&gt; и &lt;/div&gt;. Для вставки изображений скопируйте ссылку из медиатеки.
                     </small>
                 </div>
                 <div class="form-group">
@@ -684,7 +684,7 @@
                         container.appendChild(item);
                     });
                 } else {
-                    container.innerHTML = '<div>Папка images пуста или не создана. Создайте первую статью, затем папка появится.</div>';
+                    container.innerHTML = '<div>Папка images пуста или не создана.</div>';
                 }
             } catch (error) {
                 console.error('Ошибка загрузки медиа:', error);
@@ -849,7 +849,7 @@
     <div class="hero">
         <h1 class="page-title">${escapeHtml(title)}</h1>
     </div>
-    <div class="general-tips">
+    <div class="editable-content">
         ${content}
     </div>
     <div class="footer-note">Безопасность начинается с вас.</div>
@@ -891,27 +891,31 @@
                     const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
                     const title = titleMatch ? titleMatch[1] : '';
                     
-                    let bodyHtml = '';
+                    let editableContent = '';
                     
-                    const editableMatch = content.match(/<div class="editable-content">\s*([\s\S]*?)\s*<\/div>/i);
+                    const editableMatch = content.match(/<div class="editable-content">([\s\S]*?)<\/div>/i);
                     if (editableMatch) {
-                        bodyHtml = editableMatch[1].trim();
+                        editableContent = editableMatch[1].trim();
                     }
                     
-                    if (!bodyHtml || bodyHtml === '') {
-                        const generalTipsMatch = content.match(/<div class="general-tips">([\s\S]*?)<\/div>/i);
-                        if (generalTipsMatch) {
-                            bodyHtml = generalTipsMatch[1].trim();
+                    if (!editableContent) {
+                        const containerMatch = content.match(/<div class="container">([\s\S]*?)<\/div>\s*<\/div>\s*<\/body>/i);
+                        if (containerMatch) {
+                            let inner = containerMatch[1];
+                            inner = inner.replace(/<div class="hero">[\s\S]*?<\/div>/i, '');
+                            inner = inner.replace(/<a[^>]*class="back-button"[^>]*>[\s\S]*?<\/a>/i, '');
+                            inner = inner.replace(/<div class="footer-note">[\s\S]*?<\/div>/i, '');
+                            editableContent = inner.trim();
                         }
                     }
                     
-                    if (!bodyHtml || bodyHtml === '') {
-                        bodyHtml = '<p>Содержимое статьи не найдено. Отредактируйте текст вручную.</p>';
+                    if (!editableContent) {
+                        editableContent = '<p>Содержимое статьи не найдено. Отредактируйте текст вручную.</p>';
                     }
                     
                     document.getElementById('articleTitle').value = title;
                     document.getElementById('articleFilename').value = filename;
-                    document.getElementById('articleContent').value = bodyHtml;
+                    document.getElementById('articleContent').value = editableContent;
                     
                     document.getElementById('modalTitle').textContent = 'Редактирование статьи';
                     document.getElementById('editorModal').style.display = 'flex';
@@ -976,14 +980,8 @@
                 } catch (e) {}
             }
             
-            if (existingContent) {
-                if (existingContent.includes('class="editable-content"')) {
-                    fullHtml = existingContent.replace(/<div class="editable-content">\s*[\s\S]*?\s*<\/div>/i, `<div class="editable-content">\n    ${contentHtml}\n    </div>`);
-                } else if (existingContent.includes('class="general-tips"')) {
-                    fullHtml = existingContent.replace(/<div class="general-tips">[\s\S]*?<\/div>/i, `<div class="general-tips">\n    ${contentHtml}\n    </div>`);
-                } else {
-                    fullHtml = existingContent;
-                }
+            if (existingContent && existingContent.includes('class="editable-content"')) {
+                fullHtml = existingContent.replace(/<div class="editable-content">[\s\S]*?<\/div>/, `<div class="editable-content">\n    ${contentHtml}\n    </div>`);
             } else {
                 const heroBadge = filename.includes('2fa') ? 'Двухфакторная аутентификация' : (filename.includes('privacy') ? 'Приватность' : 'Статья');
                 fullHtml = `<!DOCTYPE html>
