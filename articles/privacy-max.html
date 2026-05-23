@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Настройка приватности в МАХ: пошаговая инструкция</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style-password.css">
+    <style>
+        .setting-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1rem 1.2rem;
+            margin: 1rem 0;
+            border: 1px solid rgba(44,122,110,0.15);
+        }
+        .setting-title {
+            font-weight: 700;
+            color: var(--accent-dark);
+            margin-bottom: 0.5rem;
+            font-size: 1.05rem;
+        }
+        .checklist-simple {
+            background: rgba(255,255,245,0.8);
+            border-radius: 1.2rem;
+            padding: 0.8rem 1.5rem;
+            margin: 0.5rem 0 1rem 0;
+        }
+        .checklist-simple li {
+            display: flex;
+            align-items: baseline;
+            gap: 0.8rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(44,122,110,0.1);
+        }
+        .checklist-simple li:last-child {
+            border-bottom: none;
+        }
+        .checklist-simple input {
+            width: 1.1rem;
+            height: 1.1rem;
+            accent-color: var(--accent-teal);
+            flex-shrink: 0;
+            margin-top: 0.2rem;
+        }
+        .menu-toggle, .side-menu, .overlay {
+            z-index: 1100;
+        }
+        .side-menu a::before {
+            content: none;
+        }
+        .side-menu a {
+            padding-left: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="menu-toggle" id="menuToggle">
+    <span></span>
+</div>
+<div class="overlay" id="overlay"></div>
+<div class="side-menu" id="sideMenu">
+    <button class="close-menu" id="closeMenuBtn">✕</button>
+    <div id="sideMenuContent">
+        <div class="loader-sections">Загрузка разделов...</div>
+    </div>
+</div>
+
+<div class="container">
+    <a href="../index.html" class="back-button">← На главную</a>
+
+    <div class="hero">
+        <h1 class="page-title">Настройка приватности в МАХ</h1>
+        <div class="hero-badge">МАХ · Приватность · Безопасный режим</div>
+    </div>
+
+    <div class="editable-content">
+        <div class="general-tips" style="margin-bottom: 1.5rem;">
+            <h3>Что такое настройки приватности в МАХ?</h3>
+            <p>Настройки приватности в МАХ позволяют контролировать, кто может находить вас по номеру телефона, кто может звонить и писать, а также фильтровать нежелательный контент. МАХ имеет удобную функцию «Безопасный режим», которая одним переключателем ограничивает нежелательные контакты.</p>
+            <div class="info-note">
+                <span style="font-size:1.2rem; margin-right:0.3rem;">🔐</span>
+                <strong>Важно:</strong> Настройте приватность сразу после установки приложения, чтобы защитить себя от мошенников и спама.
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header">
+                <h3>Где находятся настройки приватности</h3>
+            </div>
+            <div class="card-body">
+                <div class="screenshot-placeholder">
+                    🖼️ Скриншот: Профиль → Безопасность или Приватность
+                </div>
+                <p>Откройте приложение МАХ на телефоне, нажмите на иконку <strong>«Профиль»</strong> (человечек) в правом нижнем углу, затем перейдите в раздел <strong>«Безопасность»</strong> или <strong>«Приватность»</strong> (название может отличаться в зависимости от версии).</p>
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header">
+                <h3>Основные настройки приватности</h3>
+            </div>
+            <div class="card-body">
+                <div class="setting-card">
+                    <div class="setting-title">1. Поиск по номеру телефона</div>
+                    <p>По умолчанию ваш номер телефона видят все пользователи МАХ. Это значит, что любой человек может найти вас по номеру. Чтобы скрыть номер от посторонних, зайдите в «Безопасность» → раздел «Найти меня по номеру» и измените значение с «могут все» на «контакты».</p>
+                    <p><strong>Рекомендация:</strong> выберите «контакты». Тогда найти вас по номеру смогут только те, кто уже есть в вашей телефонной книге.</p>
+                </div>
+
+                <div class="setting-card">
+                    <div class="setting-title">2. Безопасный режим</div>
+                    <p>Это главная настройка приватности в МАХ. «Безопасный режим» — это набор настроек, который одним переключателем ограничивает нежелательные контакты. Включите «Безопасный режим» в разделе «Безопасность». После включения:</p>
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>Ваш профиль не показывается в поиске (вас не найдут по номеру телефона)</li>
+                        <li>Позвонить вам смогут только люди из ваших контактов</li>
+                        <li>Написать сообщение смогут только те, с кем вы уже общались</li>
+                    </ul>
+                    <p><strong>Рекомендация:</strong> обязательно включите эту опцию — это лучшая защита от звонков и сообщений от незнакомцев.</p>
+                </div>
+
+                <div class="setting-card">
+                    <div class="setting-title">3. Контент (фильтр 16+)</div>
+                    <p>В МАХ можно скрыть публикации с пометкой «16+». Для этого зайдите в «Приватность» → вкладка «Безопасный режим» → нажмите «Контент» и выберите показ только безопасных материалов. Каналы и посты с пометкой 16+ не будут отображаться в ленте, поиске и пересылках.</p>
+                    <p><strong>Рекомендация:</strong> включите фильтр, чтобы оградить себя от нежелательного контента.</p>
+                </div>
+
+                <div class="setting-card">
+                    <div class="setting-title">4. Семейная защита</div>
+                    <p>Функция, с помощью которой можно обезопасить близких (детей, пожилых родственников) от мошенников и спама. В разделе «Приватность» выберите «Семейная защита» → «Создать защиту». Приложение сгенерирует шестизначный код — передайте его тому, кого хотите подключить к защите. После этого вы сможете контролировать, кто пишет и звонит вашему близкому человеку.</p>
+                    <p><strong>Рекомендация:</strong> подключите эту функцию для пожилых родственников, которые могут не разобраться в настройках сами.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header">
+                <span style="font-size: 1.8rem;">✅</span>
+                <h3>Чек-лист: проверьте настройки</h3>
+            </div>
+            <div class="card-body">
+                <ul class="checklist-simple" id="max-privacy-checklist">
+                    <li><input type="checkbox" id="max_check1"> <label for="max_check1">Меня нельзя найти по номеру телефона (выбрано «контакты»)</label></li>
+                    <li><input type="checkbox" id="max_check2"> <label for="max_check2">Включён «Безопасный режим»</label></li>
+                    <li><input type="checkbox" id="max_check3"> <label for="max_check3">Включён фильтр контента 16+</label></li>
+                    <li><input type="checkbox" id="max_check4"> <label for="max_check4">Настроена «Семейная защита» для близких</label></li>
+                </ul>
+                <div style="margin-top: 0.8rem;">
+                    <button id="resetMaxPrivacy" class="reset-checklist">Сбросить все отметки</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="general-tips" style="border-left: 6px solid var(--accent-teal);">
+            <h3>Часто задаваемые вопросы</h3>
+            <p><strong>❓ Что делает «Безопасный режим»?</strong><br>Это главная защитная функция МАХ. Одним переключателем вы ограничиваете контакты: вас не найдут в поиске, позвонить и написать смогут только люди из ваших контактов или те, с кем вы уже общались.</p>
+            <p><strong>❓ Если я включу «Безопасный режим», смогут ли мне писать друзья?</strong><br>Да, друзья из вашей телефонной книги смогут писать и звонить как обычно. Ограничения действуют только для незнакомцев.</p>
+            <p><strong>❓ Как защитить пожилых родственников в МАХ?</strong><br>Используйте функцию «Семейная защита» в разделе «Приватность». Создайте защиту и передайте код родственнику — после этого вы будете видеть, кто пытается с ними связаться.</p>
+            <p><strong>❓ Что такое фильтр 16+?</strong><br>Скрывает публикации с пометкой 16+. Каналы и посты с такой пометкой не будут отображаться в вашей ленте, поиске и пересылках. Это полезно, чтобы не видеть нежелательный контент.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const checkboxes = document.querySelectorAll('#max-privacy-checklist input[type="checkbox"]');
+        const resetBtn = document.getElementById('resetMaxPrivacy');
+
+        function saveChecklistState() {
+            const states = {};
+            checkboxes.forEach(cb => { states[cb.id] = cb.checked; });
+            localStorage.setItem('max_privacy_checklist', JSON.stringify(states));
+        }
+
+        function loadChecklistState() {
+            const saved = localStorage.getItem('max_privacy_checklist');
+            if (saved) {
+                try {
+                    const states = JSON.parse(saved);
+                    checkboxes.forEach(cb => { if (states[cb.id]) cb.checked = states[cb.id]; });
+                } catch(e) {}
+            }
+        }
+
+        function resetChecklist() {
+            checkboxes.forEach(cb => cb.checked = false);
+            saveChecklistState();
+        }
+
+        checkboxes.forEach(cb => cb.addEventListener('change', saveChecklistState));
+        if (resetBtn) resetBtn.addEventListener('click', resetChecklist);
+        loadChecklistState();
+    })();
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function renderSideMenu(sections, currentPage) {
+        const container = document.getElementById('sideMenuContent');
+        if (!container) return;
+        if (!sections || sections.length === 0) {
+            container.innerHTML = '<div class="error-msg">Нет доступных разделов</div>';
+            return;
+        }
+
+        let html = '<h4 style="margin-top: 0; margin-bottom: 0.8rem; color: var(--accent-dark);">Разделы по безопасности</h4>';
+        
+        sections.forEach(section => {
+            if (section.type === 'simple') {
+                const isCurrent = section.link === currentPage;
+                html += `
+                    <div style="margin-bottom: 0.6rem;">
+                        <strong style="display: block; padding: 0.3rem 1rem; background: ${isCurrent ? 'rgba(44,122,110,0.1)' : 'transparent'}; border-radius: 2rem;">${escapeHtml(section.title)}</strong>
+                        <a href="${section.link}" style="padding-left: 1.8rem;">${isCurrent ? 'Текущая страница' : (section.linkText || 'Перейти →')}</a>
+                    </div>
+                `;
+            } else if (section.type === 'submenu' && section.platforms) {
+                html += `
+                    <div style="margin-bottom: 0.6rem;">
+                        <strong style="display: block; padding: 0.3rem 1rem;">${escapeHtml(section.title)}</strong>
+                        ${section.platforms.map(p => `<a href="${p.url}" style="padding-left: 1.8rem;">${escapeHtml(p.name)}</a>`).join('')}
+                    </div>
+                `;
+            }
+        });
+        
+        container.innerHTML = html;
+    }
+
+    function loadSideMenu() {
+        const currentPage = 'privacy-max.html';
+        fetch('../data.json')
+            .then(response => {
+                if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.sections && Array.isArray(data.sections)) {
+                    renderSideMenu(data.sections, currentPage);
+                } else {
+                    throw new Error('В data.json отсутствует массив sections');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки data.json:', error);
+                document.getElementById('sideMenuContent').innerHTML = `<div class="error-msg">⚠️ Не удалось загрузить разделы.<br><small>${error.message}</small></div>`;
+            });
+    }
+
+    (function() {
+        const menuToggle = document.getElementById('menuToggle');
+        const sideMenu = document.getElementById('sideMenu');
+        const overlay = document.getElementById('overlay');
+        const closeBtn = document.getElementById('closeMenuBtn');
+        function openMenu() { sideMenu.classList.add('open'); overlay.classList.add('active'); }
+        function closeMenu() { sideMenu.classList.remove('open'); overlay.classList.remove('active'); }
+        if (menuToggle) menuToggle.addEventListener('click', openMenu);
+        if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+        if (overlay) overlay.addEventListener('click', closeMenu);
+    })();
+
+    loadSideMenu();
+</script>
+</body>
+</html>
