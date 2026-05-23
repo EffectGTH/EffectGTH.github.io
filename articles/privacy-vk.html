@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Настройка приватности во ВКонтакте</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style-password.css">
+    <style>
+        .setting-card { background: white; border-radius: 1rem; padding: 1rem 1.2rem; margin: 1rem 0; border: 1px solid rgba(44,122,110,0.15); }
+        .setting-title { font-weight: 700; color: var(--accent-dark); margin-bottom: 0.5rem; font-size: 1.05rem; }
+        .checklist-simple { background: rgba(255,255,245,0.8); border-radius: 1.2rem; padding: 0.8rem 1.5rem; margin: 0.5rem 0 1rem 0; }
+        .checklist-simple li { display: flex; align-items: baseline; gap: 0.8rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(44,122,110,0.1); }
+        .checklist-simple li:last-child { border-bottom: none; }
+        .checklist-simple input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent-teal); flex-shrink: 0; margin-top: 0.2rem; }
+        .menu-toggle, .side-menu, .overlay { z-index: 1100; }
+        .side-menu a::before { content: none; }
+        .side-menu a { padding-left: 1rem; }
+    </style>
+</head>
+<body>
+<div class="menu-toggle" id="menuToggle"><span></span></div>
+<div class="overlay" id="overlay"></div>
+<div class="side-menu" id="sideMenu">
+    <button class="close-menu" id="closeMenuBtn">✕</button>
+    <div id="sideMenuContent"><div class="loader-sections">Загрузка разделов...</div></div>
+</div>
+
+<div class="container">
+    <a href="../index.html" class="back-button">← На главную</a>
+    <div class="hero">
+        <h1 class="page-title">Настройка приватности во ВКонтакте</h1>
+        <div class="hero-badge">ВКонтакте · Приватность · Защита страницы</div>
+    </div>
+
+    <div class="editable-content">
+        <div class="general-tips" style="margin-bottom: 1.5rem;">
+            <h3>Что такое настройки приватности во ВКонтакте?</h3>
+            <p>Настройки приватности позволяют контролировать, кто может видеть вашу страницу, фотографии, список друзей, записи, а также кто может писать вам сообщения и комментировать записи.</p>
+            <div class="info-note"><span style="font-size:1.2rem; margin-right:0.3rem;">🔐</span> <strong>Важно:</strong> Правильная настройка приватности защищает вашу страницу от посторонних глаз.</div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header"><h3>Где находятся настройки приватности</h3></div>
+            <div class="card-body">
+                <div class="screenshot-placeholder">🖼️ Скриншот: Настройки → Приватность</div>
+                <p><strong>На телефоне:</strong> меню (три полоски) → «Настройки» → «Приватность».</p>
+                <p><strong>На компьютере:</strong> аватар → «Настройки» → вкладка «Приватность».</p>
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header"><h3>Основные настройки приватности</h3></div>
+            <div class="card-body">
+                <div class="setting-card"><div class="setting-title">1. Закрытый профиль</div><p>Включите опцию «Закрытый профиль» внизу раздела. После этого люди, которых нет в друзьях, увидят только имя, аватар и город.</p></div>
+                <div class="setting-card"><div class="setting-title">2. Кто видит список моих друзей</div><p>Вы можете скрыть до 30 друзей от посторонних глаз.</p></div>
+                <div class="setting-card"><div class="setting-title">3. Кто видит, что я онлайн</div><p>Выберите «Никто» — другие увидят только «был в сети недавно».</p></div>
+                <div class="setting-card"><div class="setting-title">4. Другие важные настройки</div><p>Настройте «Кто видит мои сохранённые фотографии», «Кто может писать мне», «Кто может комментировать». Рекомендуем: «Только друзья».</p></div>
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header"><span style="font-size:1.8rem;">✅</span><h3>Чек-лист: проверьте настройки</h3></div>
+            <div class="card-body">
+                <ul class="checklist-simple" id="vk-privacy-checklist">
+                    <li><input type="checkbox" id="vk_check1"> <label for="vk_check1">Включён закрытый профиль</label></li>
+                    <li><input type="checkbox" id="vk_check2"> <label for="vk_check2">Список друзей скрыт от посторонних</label></li>
+                    <li><input type="checkbox" id="vk_check3"> <label for="vk_check3">Время «онлайн» скрыто</label></li>
+                    <li><input type="checkbox" id="vk_check4"> <label for="vk_check4">Писать мне могут только друзья</label></li>
+                    <li><input type="checkbox" id="vk_check5"> <label for="vk_check5">Комментировать могут только друзья</label></li>
+                </ul>
+                <button id="resetVkPrivacy" class="reset-checklist">Сбросить все отметки</button>
+            </div>
+        </div>
+
+        <div class="general-tips" style="border-left:6px solid var(--accent-teal);">
+            <h3>Часто задаваемые вопросы</h3>
+            <p><strong>❓ Что такое «закрытый профиль»?</strong><br>Вашу страницу видят только друзья. Незнакомцы увидят только имя, аватар и город.</p>
+            <p><strong>❓ Увидят ли друзья мои записи?</strong><br>Да, друзья видят всё как обычно.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const checkboxes = document.querySelectorAll('#vk-privacy-checklist input[type="checkbox"]');
+        const resetBtn = document.getElementById('resetVkPrivacy');
+        function save() { const s={}; checkboxes.forEach(cb=>{s[cb.id]=cb.checked}); localStorage.setItem('vk_privacy_checklist',JSON.stringify(s)); }
+        function load() { const saved=localStorage.getItem('vk_privacy_checklist'); if(saved){ try{ const s=JSON.parse(saved); checkboxes.forEach(cb=>{ if(s[cb.id]) cb.checked=s[cb.id]; }); }catch(e){} } }
+        function reset() { checkboxes.forEach(cb=>cb.checked=false); save(); }
+        checkboxes.forEach(cb=>cb.addEventListener('change',save));
+        if(resetBtn) resetBtn.addEventListener('click',reset);
+        load();
+    })();
+    function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>]/g,function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    function renderSideMenu(sections,currentPage){
+        const c=document.getElementById('sideMenuContent'); if(!c) return; if(!sections||sections.length===0){ c.innerHTML='<div>Нет разделов</div>'; return; }
+        let h='<h4 style="margin-top:0;margin-bottom:0.8rem;color:var(--accent-dark);">Разделы по безопасности</h4>';
+        sections.forEach(s=>{
+            if(s.type==='simple'){
+                const isCurrent=s.link===currentPage;
+                h+=`<div style="margin-bottom:0.6rem;"><strong style="display:block;padding:0.3rem 1rem;background:${isCurrent?'rgba(44,122,110,0.1)':'transparent'};border-radius:2rem;">${escapeHtml(s.title)}</strong><a href="${s.link}" style="padding-left:1.8rem;">${isCurrent?'Текущая страница':(s.linkText||'Перейти →')}</a></div>`;
+            } else if(s.type==='submenu'&&s.platforms){
+                h+=`<div style="margin-bottom:0.6rem;"><strong style="display:block;padding:0.3rem 1rem;">${escapeHtml(s.title)}</strong>${s.platforms.map(p=>`<a href="${p.url}" style="padding-left:1.8rem;">${escapeHtml(p.name)}</a>`).join('')}</div>`;
+            }
+        });
+        c.innerHTML=h;
+    }
+    function loadSideMenu(){ const current='privacy-vk.html'; fetch('../data.json').then(r=>r.json()).then(d=>{ if(d.sections) renderSideMenu(d.sections,current); }).catch(e=>{ console.error(e); document.getElementById('sideMenuContent').innerHTML='<div>Ошибка загрузки</div>'; }); }
+    (function(){ const t=document.getElementById('menuToggle'), m=document.getElementById('sideMenu'), o=document.getElementById('overlay'), c=document.getElementById('closeMenuBtn'); function open(){ m.classList.add('open'); o.classList.add('active'); } function close(){ m.classList.remove('open'); o.classList.remove('active'); } if(t) t.addEventListener('click',open); if(c) c.addEventListener('click',close); if(o) o.addEventListener('click',close); })();
+    loadSideMenu();
+</script>
+</body>
+</html>
