@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Админ-панель - Управление статьями</title>
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -203,22 +202,17 @@
             margin-bottom: 0.3rem;
             color: #1f5e54;
         }
-        input, .ql-container {
+        input, textarea {
             width: 100%;
-            border: 1px solid #cbdcd6;
-            border-radius: 0.5rem;
-        }
-        input {
             padding: 0.7rem;
-            font-size: 0.9rem;
-        }
-        .editor-wrapper {
             border: 1px solid #cbdcd6;
             border-radius: 0.5rem;
-            background: white;
+            font-size: 0.9rem;
+            font-family: monospace;
         }
-        #editor {
-            height: 400px;
+        textarea {
+            min-height: 400px;
+            resize: vertical;
         }
         .status {
             position: fixed;
@@ -269,12 +263,6 @@
             object-fit: cover;
             border-radius: 0.3rem;
         }
-        .media-item video {
-            width: 100%;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 0.3rem;
-        }
         .preview-frame {
             width: 100%;
             height: 500px;
@@ -314,6 +302,7 @@
             .article-row { padding: 0.8rem; }
             .action-buttons { margin-top: 0.5rem; }
             .modal-content { width: 95%; padding: 1rem; }
+            textarea { min-height: 300px; }
         }
     </style>
 </head>
@@ -383,13 +372,14 @@
                     <input type="text" id="articleFilename" placeholder="filename.html">
                 </div>
                 <div class="form-group">
-                    <label>Содержимое статьи</label>
-                    <div class="editor-wrapper">
-                        <div id="editor"></div>
-                    </div>
+                    <label>Содержимое статьи (HTML-код)</label>
+                    <textarea id="articleContent" placeholder="<p>Текст статьи...</p>"></textarea>
+                    <small style="color: #666; display: block; margin-top: 0.3rem;">
+                        Вы можете вставлять HTML-код. Для вставки изображения используйте кнопку "Медиатека" и скопируйте ссылку.
+                    </small>
                 </div>
                 <div class="form-group">
-                    <button class="btn btn-secondary" onclick="showMediaLibraryForEditor()">Вставить изображение</button>
+                    <button class="btn btn-secondary" onclick="showMediaLibraryForEditor()">Медиатека</button>
                 </div>
             </div>
             <div id="tab-preview" class="tab-content">
@@ -443,14 +433,12 @@
 
     <div id="status" class="status"></div>
 
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script>
         const REPO_OWNER = 'EffectGTH';
         const REPO_NAME = 'EffectGTH.github.io';
         const BRANCH = 'main';
         
         let currentArticles = [];
-        let quillEditor = null;
         let currentEditFilename = null;
         let mediaFiles = [];
         
@@ -628,10 +616,9 @@
             
             const fileExt = file.name.split('.').pop().toLowerCase();
             const isImage = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(fileExt);
-            const isVideo = ['mp4', 'webm', 'mov'].includes(fileExt);
             
-            if (!isImage && !isVideo) {
-                showStatus('Неподдерживаемый тип файла', true);
+            if (!isImage) {
+                showStatus('Неподдерживаемый тип файла. Только изображения.', true);
                 return;
             }
             
@@ -639,9 +626,9 @@
             reader.onload = async function(e) {
                 const base64 = e.target.result.split(',')[1];
                 const filename = `${Date.now()}_${file.name}`;
-                const success = await uploadToGitHub(filename, base64, true, isImage ? 'image' : 'video');
+                const success = await uploadToGitHub(filename, base64, true, 'image');
                 if (success) {
-                    showStatus('Файл загружен', false);
+                    showStatus(`Файл ${filename} загружен`, false);
                     loadMediaLibrary();
                 }
             };
@@ -684,25 +671,16 @@
                     
                     container.innerHTML = '';
                     mediaFiles.forEach(file => {
-                        const ext = file.name.split('.').pop().toLowerCase();
-                        const isImage = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(ext);
                         const fileUrl = `../images/${file.name}`;
                         
                         const item = document.createElement('div');
                         item.className = 'media-item';
                         item.onclick = () => copyToClipboard(fileUrl);
                         
-                        if (isImage) {
-                            item.innerHTML = `
-                                <img src="${fileUrl}" alt="${file.name}">
-                                <div style="font-size:0.7rem; margin-top:0.3rem;">${file.name.substring(0, 15)}</div>
-                            `;
-                        } else {
-                            item.innerHTML = `
-                                <video src="${fileUrl}" style="width:100%; height:80px; object-fit:cover;"></video>
-                                <div style="font-size:0.7rem; margin-top:0.3rem;">${file.name.substring(0, 15)}</div>
-                            `;
-                        }
+                        item.innerHTML = `
+                            <img src="${fileUrl}" alt="${file.name}">
+                            <div style="font-size:0.7rem; margin-top:0.3rem;">${file.name.substring(0, 15)}</div>
+                        `;
                         container.appendChild(item);
                     });
                 } else {
@@ -849,11 +827,7 @@
         
         function updatePreview() {
             const title = document.getElementById('articleTitle').value;
-            let content = '';
-            
-            if (quillEditor) {
-                content = quillEditor.root.innerHTML;
-            }
+            const content = document.getElementById('articleContent').value;
             
             const previewHtml = `<!DOCTYPE html>
 <html lang="ru">
@@ -922,43 +896,29 @@
                     const editableMatch = content.match(/<div class="editable-content">\s*([\s\S]*?)\s*<\/div>/i);
                     if (editableMatch) {
                         bodyHtml = editableMatch[1].trim();
-                        console.log('Найден editable-content, длина:', bodyHtml.length);
                     }
                     
                     if (!bodyHtml || bodyHtml === '') {
                         const generalTipsMatch = content.match(/<div class="general-tips">([\s\S]*?)<\/div>/i);
                         if (generalTipsMatch) {
                             bodyHtml = generalTipsMatch[1].trim();
-                            console.log('Найден general-tips, длина:', bodyHtml.length);
                         }
                     }
                     
                     if (!bodyHtml || bodyHtml === '') {
-                        bodyHtml = '<p>Содержимое статьи не найдено. Пожалуйста, отредактируйте текст вручную.</p>';
+                        bodyHtml = '<p>Содержимое статьи не найдено. Отредактируйте текст вручную.</p>';
                     }
                     
                     document.getElementById('articleTitle').value = title;
                     document.getElementById('articleFilename').value = filename;
-                    
-                    if (quillEditor) {
-                        const editorElement = document.querySelector('#editor .ql-editor');
-                        if (editorElement) {
-                            editorElement.innerHTML = bodyHtml;
-                        } else {
-                            quillEditor.root.innerHTML = bodyHtml;
-                        }
-                        console.log('Quill обновлён, содержимое:', quillEditor.root.innerHTML.substring(0, 200));
-                    }
+                    document.getElementById('articleContent').value = bodyHtml;
                     
                     document.getElementById('modalTitle').textContent = 'Редактирование статьи';
                     document.getElementById('editorModal').style.display = 'flex';
                     
                     setTimeout(() => {
                         updatePreview();
-                        if (quillEditor) {
-                            quillEditor.focus();
-                        }
-                    }, 300);
+                    }, 100);
                 } else {
                     showStatus('Не удалось загрузить файл с GitHub', true);
                 }
@@ -971,10 +931,7 @@
         function createNewArticle() {
             document.getElementById('articleTitle').value = '';
             document.getElementById('articleFilename').value = '';
-            
-            if (quillEditor) {
-                quillEditor.root.innerHTML = '<p>Напишите здесь текст статьи...</p>';
-            }
+            document.getElementById('articleContent').value = '<p>Напишите здесь текст статьи...</p>';
             
             document.getElementById('modalTitle').textContent = 'Создание новой статьи';
             document.getElementById('editorModal').style.display = 'flex';
@@ -984,11 +941,7 @@
         async function saveArticle() {
             const title = document.getElementById('articleTitle').value;
             let filename = document.getElementById('articleFilename').value;
-            let contentHtml = '';
-            
-            if (quillEditor) {
-                contentHtml = quillEditor.root.innerHTML;
-            }
+            let contentHtml = document.getElementById('articleContent').value;
             
             if (!filename) {
                 showStatus('Укажите имя файла', true);
@@ -1019,11 +972,8 @@
                     if (checkResponse.ok) {
                         const data = await checkResponse.json();
                         existingContent = decodeURIComponent(escape(atob(data.content)));
-                        console.log('Существующий файл найден, обновляем содержимое');
                     }
-                } catch (e) {
-                    console.log('Файл не существует, создаём новый');
-                }
+                } catch (e) {}
             }
             
             if (existingContent) {
@@ -1037,33 +987,33 @@
             } else {
                 const heroBadge = filename.includes('2fa') ? 'Двухфакторная аутентификация' : (filename.includes('privacy') ? 'Приватность' : 'Статья');
                 fullHtml = `<!DOCTYPE html>
-        <html lang="ru">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>${escapeHtml(title)}</title>
-            <link rel="stylesheet" href="../css/style.css">
-            <link rel="stylesheet" href="../css/style-password.css">
-        </head>
-        <body>
-        <div class="container">
-            <a href="../index.html" class="back-button">На главную</a>
-            
-            <div class="hero">
-                <h1 class="page-title">${escapeHtml(title)}</h1>
-                <div class="hero-badge">${escapeHtml(heroBadge)}</div>
-            </div>
-            
-            <div class="editable-content">
-                ${contentHtml}
-            </div>
-            
-            <div class="footer-note">
-                Безопасность начинается с вас.
-            </div>
-        </div>
-        </body>
-        </html>`;
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${escapeHtml(title)}</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style-password.css">
+</head>
+<body>
+<div class="container">
+    <a href="../index.html" class="back-button">На главную</a>
+    
+    <div class="hero">
+        <h1 class="page-title">${escapeHtml(title)}</h1>
+        <div class="hero-badge">${escapeHtml(heroBadge)}</div>
+    </div>
+    
+    <div class="editable-content">
+        ${contentHtml}
+    </div>
+    
+    <div class="footer-note">
+        Безопасность начинается с вас.
+    </div>
+</div>
+</body>
+</html>`;
             }
             
             const isNew = !currentArticles.some(a => a.filename === filename);
@@ -1122,39 +1072,6 @@
             checkToken();
             refreshArticles();
             loadMediaLibrary();
-            
-            quillEditor = new Quill('#editor', {
-                theme: 'snow',
-                placeholder: 'Напишите содержание статьи...',
-                modules: {
-                    toolbar: [
-                        ['bold', 'italic', 'underline', 'strike'],
-                        ['blockquote', 'code-block'],
-                        [{ 'header': 1 }, { 'header': 2 }],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        [{ 'script': 'sub'}, { 'script': 'super' }],
-                        [{ 'indent': '-1'}, { 'indent': '+1' }],
-                        [{ 'direction': 'rtl' }],
-                        [{ 'size': ['small', false, 'large', 'huge'] }],
-                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                        [{ 'color': [] }, { 'background': [] }],
-                        [{ 'font': [] }],
-                        [{ 'align': [] }],
-                        ['clean'],
-                        ['link', 'image', 'video']
-                    ]
-                }
-            });
-            
-            setTimeout(() => {
-                if (quillEditor && quillEditor.root) {
-                    console.log('Quill инициализирован');
-                }
-            }, 500);
-            
-            quillEditor.on('text-change', function() {
-                updatePreview();
-            });
         }
     </script>
 </body>
