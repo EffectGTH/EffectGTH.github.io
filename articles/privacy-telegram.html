@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Настройка приватности в Telegram: пошаговая инструкция</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style-password.css">
+    <style>
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+            padding-left: 0;
+            margin: 1.5rem 0;
+        }
+        .step-list li {
+            counter-increment: step-counter;
+            margin-bottom: 1.2rem;
+            padding-left: 2.8rem;
+            position: relative;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--text-soft);
+        }
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1.8rem;
+            height: 1.8rem;
+            background: var(--accent-teal);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .setting-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1rem 1.2rem;
+            margin: 1rem 0;
+            border: 1px solid rgba(44,122,110,0.15);
+        }
+        .setting-title {
+            font-weight: 700;
+            color: var(--accent-dark);
+            margin-bottom: 0.5rem;
+            font-size: 1.05rem;
+        }
+        .checklist-simple {
+            background: rgba(255,255,245,0.8);
+            border-radius: 1.2rem;
+            padding: 0.8rem 1.5rem;
+            margin: 0.5rem 0 1rem 0;
+        }
+        .checklist-simple li {
+            display: flex;
+            align-items: baseline;
+            gap: 0.8rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(44,122,110,0.1);
+        }
+        .checklist-simple li:last-child {
+            border-bottom: none;
+        }
+        .checklist-simple input {
+            width: 1.1rem;
+            height: 1.1rem;
+            accent-color: var(--accent-teal);
+            flex-shrink: 0;
+            margin-top: 0.2rem;
+        }
+        .menu-toggle, .side-menu, .overlay {
+            z-index: 1100;
+        }
+        .side-menu a::before {
+            content: none;
+        }
+        .side-menu a {
+            padding-left: 1rem;
+        }
+        @media (max-width: 680px) {
+            .step-list li {
+                font-size: 0.9rem;
+                padding-left: 2.2rem;
+            }
+            .step-list li::before {
+                width: 1.5rem;
+                height: 1.5rem;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="menu-toggle" id="menuToggle">
+    <span></span>
+</div>
+<div class="overlay" id="overlay"></div>
+<div class="side-menu" id="sideMenu">
+    <button class="close-menu" id="closeMenuBtn">✕</button>
+    <div id="sideMenuContent">
+        <div class="loader-sections">Загрузка разделов...</div>
+    </div>
+</div>
+
+<div class="container">
+    <a href="../index.html" class="back-button">← На главную</a>
+
+    <div class="hero">
+        <h1 class="page-title">Настройка приватности в Telegram</h1>
+        <div class="hero-badge">Telegram · Конфиденциальность · Защита личных данных</div>
+    </div>
+
+    <div class="editable-content">
+        <div class="general-tips" style="margin-bottom: 1.5rem;">
+            <h3>Что такое настройки приватности в Telegram?</h3>
+            <p>Настройки приватности позволяют контролировать, кто может видеть вашу личную информацию: номер телефона, фото профиля, статус «онлайн», а также кто может присылать вам приглашения и пересылать ваши сообщения.</p>
+            <div class="info-note">
+                <span style="font-size:1.2rem; margin-right:0.3rem;">🔐</span> <strong>Важно:</strong> Правильная настройка приватности защищает вас от мошенников и нежелательных контактов.
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header">
+                <h3>Где находятся настройки приватности</h3>
+            </div>
+            <div class="card-body">
+                <div class="screenshot-placeholder">
+                    🖼️ Скриншот: Настройки → Конфиденциальность
+                </div>
+                <p>Откройте приложение Telegram, нажмите на иконку <strong>«Настройки»</strong> (шестерёнка или три полоски в левом верхнем углу), затем выберите раздел <strong>«Конфиденциальность»</strong>. Все основные настройки находятся здесь.</p>
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header">
+                <h3>Основные настройки приватности</h3>
+            </div>
+            <div class="card-body">
+                <div class="setting-card">
+                    <div class="setting-title">1. Номер телефона</div>
+                    <p>Вы можете выбрать, кто видит ваш номер телефона: «Все», «Мои контакты» или «Никто». Также можно настроить, кто может находить вас по номеру телефона.</p>
+                    <p><strong>Рекомендация:</strong> выберите «Мои контакты» или «Никто», чтобы номер телефона не видели посторонние.</p>
+                </div>
+
+                <div class="setting-card">
+                    <div class="setting-title">2. Фото профиля</div>
+                    <p>Настройте, кто может видеть ваше фото: «Все», «Мои контакты» или «Никто».</p>
+                    <p><strong>Рекомендация:</strong> «Мои контакты» — ваши друзья увидят фото, а незнакомцы — нет.</p>
+                </div>
+
+                <div class="setting-card">
+                    <div class="setting-title">3. Статус «онлайн»</div>
+                    <p>Telegram позволяет скрыть точное время последнего посещения. Можно выбрать, кто видит ваш статус: «Все», «Мои контакты» или «Никто». Если выбрать «Никто», другие пользователи не увидят, когда вы были в сети.</p>
+                    <p><strong>Рекомендация:</strong> «Мои контакты» или «Никто» для максимальной приватности.</p>
+                </div>
+
+                <div class="setting-card">
+                    <div class="setting-title">4. Пересылка сообщений</div>
+                    <p>Ограничьте возможность пересылать ваши сообщения. Можно настроить так, чтобы пересылать их могли только определённые люди.</p>
+                    <p><strong>Рекомендация:</strong> выберите «Мои контакты», чтобы только друзья могли пересылать ваши сообщения.</p>
+                </div>
+
+                <div class="setting-card">
+                    <div class="setting-title">5. Приглашения в группы и каналы</div>
+                    <p>Настройте, кто может приглашать вас в группы и каналы: «Все», «Мои контакты» или «Никто».</p>
+                    <p><strong>Рекомендация:</strong> «Мои контакты», чтобы не получать приглашения от незнакомцев.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header">
+                <span style="font-size: 1.8rem;">✅</span>
+                <h3>Чек-лист: проверьте настройки</h3>
+            </div>
+            <div class="card-body">
+                <ul class="checklist-simple" id="tg-privacy-checklist">
+                    <li><input type="checkbox" id="tg_check1"> <label for="tg_check1">Номер телефона скрыт от посторонних (выбрано «Мои контакты» или «Никто»)</label></li>
+                    <li><input type="checkbox" id="tg_check2"> <label for="tg_check2">Фото профиля видят только мои контакты</label></li>
+                    <li><input type="checkbox" id="tg_check3"> <label for="tg_check3">Статус «онлайн» скрыт от незнакомцев</label></li>
+                    <li><input type="checkbox" id="tg_check4"> <label for="tg_check4">Пересылку моих сообщений ограничили («Мои контакты»)</label></li>
+                    <li><input type="checkbox" id="tg_check5"> <label for="tg_check5">Приглашения в группы и каналы разрешены только моим контактам</label></li>
+                </ul>
+                <div style="margin-top: 0.8rem;">
+                    <button id="resetTgPrivacy" class="reset-checklist">Сбросить все отметки</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="general-tips" style="border-left: 6px solid var(--accent-teal);">
+            <h3>Часто задаваемые вопросы</h3>
+            <p><strong>❓ Если я скрою номер телефона, меня всё равно смогут найти друзья?</strong><br>Да, если вы в контактах друг у друга, вы сможете общаться. Но незнакомые люди не увидят ваш номер.</p>
+            <p><strong>❓ Что значит «Никто» для статуса «онлайн»?</strong><br>Никто не увидит точного времени вашего последнего посещения. Вместо этого будет отображаться «был(а) недавно».</p>
+            <p><strong>❓ Могут ли мои сообщения пересылать, если я запретил?</strong><br>Если вы выберете «Мои контакты», то пересылать смогут только ваши друзья. Если «Никто» — пересылать не сможет никто.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const checkboxes = document.querySelectorAll('#tg-privacy-checklist input[type="checkbox"]');
+        const resetBtn = document.getElementById('resetTgPrivacy');
+
+        function saveChecklistState() {
+            const states = {};
+            checkboxes.forEach(cb => { states[cb.id] = cb.checked; });
+            localStorage.setItem('tg_privacy_checklist', JSON.stringify(states));
+        }
+
+        function loadChecklistState() {
+            const saved = localStorage.getItem('tg_privacy_checklist');
+            if (saved) {
+                try {
+                    const states = JSON.parse(saved);
+                    checkboxes.forEach(cb => { if (states[cb.id]) cb.checked = states[cb.id]; });
+                } catch(e) {}
+            }
+        }
+
+        function resetChecklist() {
+            checkboxes.forEach(cb => cb.checked = false);
+            saveChecklistState();
+        }
+
+        checkboxes.forEach(cb => cb.addEventListener('change', saveChecklistState));
+        if (resetBtn) resetBtn.addEventListener('click', resetChecklist);
+        loadChecklistState();
+    })();
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function renderSideMenu(sections, currentPage) {
+        const container = document.getElementById('sideMenuContent');
+        if (!container) return;
+        if (!sections || sections.length === 0) {
+            container.innerHTML = '<div class="error-msg">Нет доступных разделов</div>';
+            return;
+        }
+
+        let html = '<h4 style="margin-top: 0; margin-bottom: 0.8rem; color: var(--accent-dark);">Разделы по безопасности</h4>';
+        
+        sections.forEach(section => {
+            if (section.type === 'simple') {
+                const isCurrent = section.link === currentPage;
+                html += `
+                    <div style="margin-bottom: 0.6rem;">
+                        <strong style="display: block; padding: 0.3rem 1rem; background: ${isCurrent ? 'rgba(44,122,110,0.1)' : 'transparent'}; border-radius: 2rem;">${escapeHtml(section.title)}</strong>
+                        <a href="${section.link}" style="padding-left: 1.8rem;">${isCurrent ? 'Текущая страница' : (section.linkText || 'Перейти →')}</a>
+                    </div>
+                `;
+            } else if (section.type === 'submenu' && section.platforms) {
+                html += `
+                    <div style="margin-bottom: 0.6rem;">
+                        <strong style="display: block; padding: 0.3rem 1rem;">${escapeHtml(section.title)}</strong>
+                        ${section.platforms.map(p => `<a href="${p.url}" style="padding-left: 1.8rem;">${escapeHtml(p.name)}</a>`).join('')}
+                    </div>
+                `;
+            }
+        });
+        
+        container.innerHTML = html;
+    }
+
+    function loadSideMenu() {
+        const currentPage = 'privacy-telegram.html';
+        fetch('../data.json')
+            .then(response => {
+                if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.sections && Array.isArray(data.sections)) {
+                    renderSideMenu(data.sections, currentPage);
+                } else {
+                    throw new Error('В data.json отсутствует массив sections');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки data.json:', error);
+                document.getElementById('sideMenuContent').innerHTML = `<div class="error-msg">⚠️ Не удалось загрузить разделы.<br><small>${error.message}</small></div>`;
+            });
+    }
+
+    (function() {
+        const menuToggle = document.getElementById('menuToggle');
+        const sideMenu = document.getElementById('sideMenu');
+        const overlay = document.getElementById('overlay');
+        const closeBtn = document.getElementById('closeMenuBtn');
+        function openMenu() { sideMenu.classList.add('open'); overlay.classList.add('active'); }
+        function closeMenu() { sideMenu.classList.remove('open'); overlay.classList.remove('active'); }
+        if (menuToggle) menuToggle.addEventListener('click', openMenu);
+        if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+        if (overlay) overlay.addEventListener('click', closeMenu);
+    })();
+
+    loadSideMenu();
+</script>
+</body>
+</html>
