@@ -5,13 +5,17 @@
       "title": "Надёжный пароль",
       "type": "simple",
       "link": "articles/password.html",
-      "linkText": "Перейти к инструкции →"
+      "linkText": "Подробнее →"
     },
     {
       "num": 2,
-      "title": "Двухфакторная аутентификация (2FA)",
+      "title": "Двухфакторная аутентификация",
       "type": "submenu",
       "platforms": [
+        {
+          "name": "МАХ",
+          "url": "articles/2fa-max.html"
+        },
         {
           "name": "Telegram",
           "url": "articles/2fa-telegram.html"
@@ -19,10 +23,6 @@
         {
           "name": "VK",
           "url": "articles/2fa-vk.html"
-        },
-        {
-          "name": "МАХ",
-          "url": "articles/2fa-max.html"
         }
       ]
     },
@@ -32,39 +32,18 @@
       "type": "submenu",
       "platforms": [
         {
+          "name": "МАХ",
+          "url": "articles/privacy-max.html"
+        },
+        {
           "name": "Telegram",
           "url": "articles/privacy-telegram.html"
         },
         {
           "name": "VK",
           "url": "articles/privacy-vk.html"
-        },
-        {
-          "name": "МАХ",
-          "url": "articles/privacy-max.html"
         }
       ]
-    },
-    {
-      "num": 4,
-      "title": "Мошеннические схемы",
-      "type": "simple",
-      "link": "articles/fraud.html",
-      "linkText": "Подробнее о мошенниках →"
-    },
-    {
-      "num": 5,
-      "title": "Действия при взломе аккаунта",
-      "type": "simple",
-      "link": "articles/hacked.html",
-      "linkText": "Инструкция при взломе →"
-    },
-    {
-      "num": 6,
-      "title": "Об авторах",
-      "type": "simple",
-      "link": "articles/about.html",
-      "linkText": "Узнать о проекте →"
     }
   ]
 }
