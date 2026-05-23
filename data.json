@@ -25,6 +25,17 @@
           "url": "articles/2fa-vk.html"
         }
       ]
+    },
+    {
+      "num": 3,
+      "title": "Приватность профиля",
+      "type": "submenu",
+      "platforms": [
+        {
+          "name": "Telegram",
+          "url": "articles/privacy-telegram.html"
+        }
+      ]
     }
   ]
 }
