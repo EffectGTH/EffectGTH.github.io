@@ -32,16 +32,8 @@
       "type": "submenu",
       "platforms": [
         {
-          "name": "МАХ",
-          "url": "articles/privacy-max.html"
-        },
-        {
           "name": "Telegram",
           "url": "articles/privacy-telegram.html"
-        },
-        {
-          "name": "VK",
-          "url": "articles/privacy-vk.html"
         }
       ]
     }
