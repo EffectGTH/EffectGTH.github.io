@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Что делать при взломе аккаунта: инструкции для ВК, Telegram, МАХ</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style-password.css">
+    <style>
+        .platform-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1rem 1.2rem;
+            margin: 1rem 0;
+            border: 1px solid rgba(44,122,110,0.15);
+        }
+        .platform-title {
+            font-weight: 700;
+            color: var(--accent-dark);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            border-left: 3px solid var(--accent-teal);
+            padding-left: 0.6rem;
+        }
+        .steps-list {
+            margin-left: 1.2rem;
+            line-height: 1.5;
+        }
+        .steps-list li {
+            margin: 0.5rem 0;
+        }
+        .alert-note {
+            background: #ffe0d9;
+            border-left: 4px solid #dc2626;
+            padding: 1rem;
+            border-radius: 0.8rem;
+            margin: 1rem 0;
+        }
+        .checklist-simple {
+            background: rgba(255,255,245,0.8);
+            border-radius: 1.2rem;
+            padding: 0.8rem 1.5rem;
+            margin: 0.5rem 0 1rem 0;
+        }
+        .checklist-simple li {
+            display: flex;
+            align-items: baseline;
+            gap: 0.8rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(44,122,110,0.1);
+        }
+        .checklist-simple li:last-child { border-bottom: none; }
+        .checklist-simple input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent-teal); flex-shrink: 0; margin-top: 0.2rem; }
+        .menu-toggle, .side-menu, .overlay { z-index: 1100; }
+        .side-menu a::before { content: none; }
+        .side-menu a { padding-left: 1rem; }
+        @media (max-width: 680px) {
+            .platform-card { padding: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="menu-toggle" id="menuToggle"><span></span></div>
+<div class="overlay" id="overlay"></div>
+<div class="side-menu" id="sideMenu">
+    <button class="close-menu" id="closeMenuBtn">✕</button>
+    <div id="sideMenuContent"><div class="loader-sections">Загрузка разделов...</div></div>
+</div>
+
+<div class="container">
+    <a href="../index.html" class="back-button">← На главную</a>
+    <div class="hero">
+        <h1 class="page-title">Что делать при взломе аккаунта</h1>
+        <div class="hero-badge">Пошаговые инструкции для ВК, Telegram и МАХ</div>
+    </div>
+
+    <div class="editable-content">
+        <div class="general-tips" style="margin-bottom: 1.5rem;">
+            <h3>Как понять, что аккаунт взломали?</h3>
+            <ul style="margin-left: 1.2rem;">
+                <li>Вы не можете войти в аккаунт (пароль не подходит)</li>
+                <li>От вашего имени отправляются сообщения, которые вы не писали</li>
+                <li>В аккаунте появились записи, группы или подписки, которые вы не добавляли</li>
+                <li>Изменились личные данные (имя, фамилия, номер телефона, email)</li>
+                <li>Пришло уведомление о входе с незнакомого устройства</li>
+            </ul>
+            <div class="alert-note"><span style="font-size:1.2rem; margin-right:0.3rem;">⚠️</span> <strong>Важно:</strong> Действуйте быстро! Чем раньше вы начнёте восстановление, тем выше шанс вернуть аккаунт.</div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header"><h3>Инструкция для ВКонтакте (VK)</h3></div>
+            <div class="card-body">
+                <div class="platform-card">
+                    <div class="platform-title">Если у вас ещё есть доступ к аккаунту:</div>
+                    <ol class="steps-list">
+                        <li><strong>Завершите все сеансы</strong> на других устройствах: «Настройки» → «Безопасность» → «Список устройств» → «Выйти на других устройствах».</li>
+                        <li><strong>Смените пароль</strong>: там же → «Ваш пароль» → введите код из SMS и задайте новый надёжный пароль.</li>
+                        <li><strong>Включите двухфакторную аутентификацию</strong> (см. раздел 2.2).</li>
+                    </ol>
+                </div>
+                <div class="platform-card">
+                    <div class="platform-title">Если доступ потерян:</div>
+                    <ol class="steps-list">
+                        <li>Перейдите на страницу восстановления VK ID.</li>
+                        <li>Заполните форму восстановления (номер телефона, старый пароль, другие данные).</li>
+                        <li>Чем больше информации, тем выше шанс вернуть аккаунт. Поддержка сбросит пароль и пришлёт инструкции.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header"><h3>Инструкция для Telegram</h3></div>
+            <div class="card-body">
+                <div class="alert-note"><strong>⏰ У вас есть 24 часа!</strong> Telegram даёт 24 часа после входа злоумышленника, чтобы удалить чужие сеансы.</div>
+                <div class="platform-card">
+                    <div class="platform-title">Если осталась активная сессия на другом устройстве:</div>
+                    <ol class="steps-list">
+                        <li>Зайдите в Telegram на этом устройстве.</li>
+                        <li>«Настройки» → «Устройства».</li>
+                        <li>Найдите незнакомые устройства и завершите их.</li>
+                        <li>Сразу включите двухэтапную аутентификацию (облачный пароль).</li>
+                    </ol>
+                </div>
+                <div class="platform-card">
+                    <div class="platform-title">Если доступ потерян полностью:</div>
+                    <ol class="steps-list">
+                        <li>Попробуйте запросить код авторизации через SMS.</li>
+                        <li>Если не приходит, заполните форму на support@telegram.org (укажите номер телефона и дату последнего доступа).</li>
+                        <li>Если восстановить не удаётся — удалите аккаунт на my.telegram.org, чтобы мошенник не обманывал людей от вашего имени. После удаления можно создать новый аккаунт на тот же номер.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header"><h3>Инструкция для МАХ</h3></div>
+            <div class="card-body">
+                <div class="platform-card">
+                    <div class="platform-title">Если доступ потерян:</div>
+                    <ol class="steps-list">
+                        <li>Обратитесь в службу технической поддержки: <a href="https://help.max.ru" target="_blank">help.max.ru</a>.</li>
+                        <li>Укажите: номер телефона аккаунта, дату и время обнаружения взлома, какие действия выполнялись перед взломом (переход по ссылкам, вход с нового устройства), использовали ли сторонние приложения.</li>
+                    </ol>
+                </div>
+                <div class="platform-card">
+                    <div class="platform-title">После восстановления аккаунта:</div>
+                    <ul class="steps-list">
+                        <li>Включите двухфакторную защиту (2FA).</li>
+                        <li>Привяжите актуальный email для восстановления.</li>
+                        <li>Проверьте активные сессии и завершите все незнакомые устройства.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header"><span style="font-size:1.8rem;">✅</span><h3>Чек-лист: что сделать после восстановления</h3></div>
+            <div class="card-body">
+                <ul class="checklist-simple" id="hacked-checklist">
+                    <li><input type="checkbox" id="hack1"> <label for="hack1">Я сменил(а) пароль на всех аккаунтах, где использовал тот же пароль.</label></li>
+                    <li><input type="checkbox" id="hack2"> <label for="hack2">Я включил(а) двухфакторную аутентификацию везде, где возможно.</label></li>
+                    <li><input type="checkbox" id="hack3"> <label for="hack3">Я проверил(а) список устройств и завершил(а) незнакомые сеансы.</label></li>
+                    <li><input type="checkbox" id="hack4"> <label for="hack4">Я сообщил(а) друзьям, что аккаунт был взломан, чтобы они не переходили по подозрительным ссылкам.</label></li>
+                    <li><input type="checkbox" id="hack5"> <label for="hack5">Я привязал(а) актуальный email и номер телефона для восстановления.</label></li>
+                </ul>
+                <button id="resetHacked" class="reset-checklist">Сбросить все отметки</button>
+            </div>
+        </div>
+
+        <div class="general-tips" style="border-left:6px solid var(--accent-teal);">
+            <h3>Что делать, если мошенники уже рассылают сообщения от вашего имени?</h3>
+            <p>Немедленно сообщите друзьям и родственникам, что аккаунт взломан, и попросите их не переходить по ссылкам и не переводить деньги. После восстановления аккаунта смените пароль и включите 2FA.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const checkboxes = document.querySelectorAll('#hacked-checklist input[type="checkbox"]');
+        const resetBtn = document.getElementById('resetHacked');
+        function save() { const s={}; checkboxes.forEach(cb=>{s[cb.id]=cb.checked}); localStorage.setItem('hacked_checklist',JSON.stringify(s)); }
+        function load() { const saved=localStorage.getItem('hacked_checklist'); if(saved){ try{ const s=JSON.parse(saved); checkboxes.forEach(cb=>{ if(s[cb.id]) cb.checked=s[cb.id]; }); }catch(e){} } }
+        function reset() { checkboxes.forEach(cb=>cb.checked=false); save(); }
+        checkboxes.forEach(cb=>cb.addEventListener('change',save));
+        if(resetBtn) resetBtn.addEventListener('click',reset);
+        load();
+    })();
+    function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>]/g,function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    function renderSideMenu(sections,currentPage){
+        const c=document.getElementById('sideMenuContent'); if(!c) return; if(!sections||sections.length===0){ c.innerHTML='<div>Нет разделов</div>'; return; }
+        let h='<h4 style="margin-top:0;margin-bottom:0.8rem;color:var(--accent-dark);">Разделы по безопасности</h4>';
+        sections.forEach(s=>{
+            if(s.type==='simple'){
+                const isCurrent=s.link===currentPage;
+                h+=`<div style="margin-bottom:0.6rem;"><strong style="display:block;padding:0.3rem 1rem;background:${isCurrent?'rgba(44,122,110,0.1)':'transparent'};border-radius:2rem;">${escapeHtml(s.title)}</strong><a href="${s.link}" style="padding-left:1.8rem;">${isCurrent?'Текущая страница':(s.linkText||'Перейти →')}</a></div>`;
+            } else if(s.type==='submenu'&&s.platforms){
+                h+=`<div style="margin-bottom:0.6rem;"><strong style="display:block;padding:0.3rem 1rem;">${escapeHtml(s.title)}</strong>${s.platforms.map(p=>`<a href="${p.url}" style="padding-left:1.8rem;">${escapeHtml(p.name)}</a>`).join('')}</div>`;
+            }
+        });
+        c.innerHTML=h;
+    }
+    function loadSideMenu(){ const current='hacked.html'; fetch('../data.json').then(r=>r.json()).then(d=>{ if(d.sections) renderSideMenu(d.sections,current); }).catch(e=>{ console.error(e); document.getElementById('sideMenuContent').innerHTML='<div>Ошибка загрузки</div>'; }); }
+    (function(){ const t=document.getElementById('menuToggle'), m=document.getElementById('sideMenu'), o=document.getElementById('overlay'), c=document.getElementById('closeMenuBtn'); function open(){ m.classList.add('open'); o.classList.add('active'); } function close(){ m.classList.remove('open'); o.classList.remove('active'); } if(t) t.addEventListener('click',open); if(c) c.addEventListener('click',close); if(o) o.addEventListener('click',close); })();
+    loadSideMenu();
+</script>
+</body>
+</html>
