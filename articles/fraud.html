@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Мошеннические схемы в социальных сетях: как распознать и защититься</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style-password.css">
+    <style>
+        .scam-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1rem 1.2rem;
+            margin: 1rem 0;
+            border: 1px solid rgba(44,122,110,0.15);
+        }
+        .scam-title {
+            font-weight: 700;
+            color: #b33a2e;
+            margin-bottom: 0.5rem;
+            font-size: 1.05rem;
+        }
+        .scam-title::before {
+            content: "⚠️ ";
+        }
+        .warning-flags {
+            background: #fff0e0;
+            border-left: 4px solid #e67e22;
+            padding: 1rem;
+            border-radius: 0.8rem;
+            margin: 1rem 0;
+        }
+        .rule-list {
+            background: rgba(255,255,245,0.8);
+            border-radius: 1.2rem;
+            padding: 0.8rem 1.5rem;
+            margin: 0.5rem 0 1rem 0;
+        }
+        .rule-list li {
+            display: flex;
+            align-items: baseline;
+            gap: 0.8rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(44,122,110,0.1);
+        }
+        .rule-list li:last-child {
+            border-bottom: none;
+        }
+        .rule-list input {
+            width: 1.1rem;
+            height: 1.1rem;
+            accent-color: var(--accent-teal);
+            flex-shrink: 0;
+            margin-top: 0.2rem;
+        }
+        .menu-toggle, .side-menu, .overlay { z-index: 1100; }
+        .side-menu a::before { content: none; }
+        .side-menu a { padding-left: 1rem; }
+        @media (max-width: 680px) {
+            .scam-card { padding: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="menu-toggle" id="menuToggle"><span></span></div>
+<div class="overlay" id="overlay"></div>
+<div class="side-menu" id="sideMenu">
+    <button class="close-menu" id="closeMenuBtn">✕</button>
+    <div id="sideMenuContent"><div class="loader-sections">Загрузка разделов...</div></div>
+</div>
+
+<div class="container">
+    <a href="../index.html" class="back-button">← На главную</a>
+    <div class="hero">
+        <h1 class="page-title">Мошеннические схемы в соцсетях</h1>
+        <div class="hero-badge">Как распознать обман и защитить себя</div>
+    </div>
+
+    <div class="editable-content">
+        <div class="general-tips" style="margin-bottom: 1.5rem;">
+            <h3>Почему нужно знать о мошенничестве?</h3>
+            <p>Мошенники каждый день придумывают новые способы обмануть людей в социальных сетях и мессенджерах. Они могут украсть ваш аккаунт, личные данные, деньги. Знание их схем — первый шаг к безопасности.</p>
+            <div class="info-note"><span style="font-size:1.2rem; margin-right:0.3rem;">🔐</span> <strong>Важно:</strong> Никогда не переходите по подозрительным ссылкам и не сообщайте коды из SMS.</div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header"><h3>Основные схемы мошенников</h3></div>
+            <div class="card-body">
+                <div class="scam-card"><div class="scam-title">Взлом через ссылки и файлы</div><p>Мошенники присылают сообщение с текстом «Это твои фотографии?», «Ты на этом видео?» и прикладывают ссылку или файл. Сообщение часто приходит от взломанного аккаунта друга. Если перейти по ссылке, на телефон скачивается вредоносное приложение, которое даёт мошенникам доступ к устройству.</p></div>
+                <div class="scam-card"><div class="scam-title">Фишинговые боты в Telegram</div><p>Злоумышленники создают ботов, похожих на полезные сервисы (заработок, розыгрыши). Просят авторизоваться — на самом деле это кража доступа к аккаунту.</p></div>
+                <div class="scam-card"><div class="scam-title">Фейковые подарки и акции</div><p>Со взломанных аккаунтов друзей приходит сообщение о «подарочной подписке Premium» или выигрыше. Для получения нужно перейти на фишинговый сайт и ввести данные от аккаунта.</p></div>
+                <div class="scam-card"><div class="scam-title">Звонки от «сотрудников банка» или «госорганов»</div><p>Звонят в мессенджерах, представляясь сотрудниками банка, полиции, «Госуслуг». Убеждают назвать код из SMS, перевести деньги на «безопасный счёт» или установить приложение.</p></div>
+                <div class="scam-card"><div class="scam-title">Обман через домовые чаты в МАХ</div><p>Мошенники приглашают в сообщество якобы для перерасчёта коммунальных платежей, просят подтвердить личные данные. При переходе по ссылке устанавливается вирус.</p></div>
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header"><h3>Как распознать мошенников? Красные флаги</h3></div>
+            <div class="card-body">
+                <div class="warning-flags">
+                    <ul style="margin-left: 1.2rem;">
+                        <li>Незнакомый отправитель или странное сообщение от друга</li>
+                        <li>Ссылка с подозрительным адресом — всегда проверяйте URL</li>
+                        <li>Обещают лёгкий заработок, выигрыш или дорогой подарок</li>
+                        <li>Просят назвать код из SMS, пароль или данные банковской карты</li>
+                        <li>Требуют срочно перевести деньги на «безопасный счёт» (таких счетов не существует)</li>
+                        <li>Файл с расширением .apk, .exe или странным названием</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="password-card">
+            <div class="card-header"><span style="font-size:1.8rem;">✅</span><h3>Правила безопасности: чек-лист</h3></div>
+            <div class="card-body">
+                <ul class="rule-list" id="fraud-checklist">
+                    <li><input type="checkbox" id="fraud1"> <label for="fraud1">Никогда не перехожу по ссылкам от незнакомцев или при подозрительном сообщении от друга — сначала звоню и уточняю.</label></li>
+                    <li><input type="checkbox" id="fraud2"> <label for="fraud2">Не сообщаю никому коды из SMS, пароли и данные банковской карты.</label></li>
+                    <li><input type="checkbox" id="fraud3"> <label for="fraud3">Знаю, что сотрудники банков и госорганов никогда не запрашивают такую информацию по телефону.</label></li>
+                    <li><input type="checkbox" id="fraud4"> <label for="fraud4">Если предлагают перевести деньги на «безопасный счёт» — прерываю разговор и звоню в банк сам.</label></li>
+                    <li><input type="checkbox" id="fraud5"> <label for="fraud5">Блокирую подозрительные боты и не авторизуюсь в непроверенных приложениях.</label></li>
+                    <li><input type="checkbox" id="fraud6"> <label for="fraud6">Если телефон начал вести себя странно (сам открывает приложения) — немедленно выключаю его.</label></li>
+                </ul>
+                <button id="resetFraud" class="reset-checklist">Сбросить все отметки</button>
+            </div>
+        </div>
+
+        <div class="general-tips" style="border-left:6px solid var(--accent-teal);">
+            <h3>Что делать, если устройство начало работать подозрительно?</h3>
+            <p>Немедленно выключите телефон долгим нажатием клавиши блокировки или извлеките батарею (если возможно). <strong>Не форматируйте устройство</strong> — данные на нём важны для расследования. Обратитесь к специалисту.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const checkboxes = document.querySelectorAll('#fraud-checklist input[type="checkbox"]');
+        const resetBtn = document.getElementById('resetFraud');
+        function save() { const s={}; checkboxes.forEach(cb=>{s[cb.id]=cb.checked}); localStorage.setItem('fraud_checklist',JSON.stringify(s)); }
+        function load() { const saved=localStorage.getItem('fraud_checklist'); if(saved){ try{ const s=JSON.parse(saved); checkboxes.forEach(cb=>{ if(s[cb.id]) cb.checked=s[cb.id]; }); }catch(e){} } }
+        function reset() { checkboxes.forEach(cb=>cb.checked=false); save(); }
+        checkboxes.forEach(cb=>cb.addEventListener('change',save));
+        if(resetBtn) resetBtn.addEventListener('click',reset);
+        load();
+    })();
+    function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>]/g,function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    function renderSideMenu(sections,currentPage){
+        const c=document.getElementById('sideMenuContent'); if(!c) return; if(!sections||sections.length===0){ c.innerHTML='<div>Нет разделов</div>'; return; }
+        let h='<h4 style="margin-top:0;margin-bottom:0.8rem;color:var(--accent-dark);">Разделы по безопасности</h4>';
+        sections.forEach(s=>{
+            if(s.type==='simple'){
+                const isCurrent=s.link===currentPage;
+                h+=`<div style="margin-bottom:0.6rem;"><strong style="display:block;padding:0.3rem 1rem;background:${isCurrent?'rgba(44,122,110,0.1)':'transparent'};border-radius:2rem;">${escapeHtml(s.title)}</strong><a href="${s.link}" style="padding-left:1.8rem;">${isCurrent?'Текущая страница':(s.linkText||'Перейти →')}</a></div>`;
+            } else if(s.type==='submenu'&&s.platforms){
+                h+=`<div style="margin-bottom:0.6rem;"><strong style="display:block;padding:0.3rem 1rem;">${escapeHtml(s.title)}</strong>${s.platforms.map(p=>`<a href="${p.url}" style="padding-left:1.8rem;">${escapeHtml(p.name)}</a>`).join('')}</div>`;
+            }
+        });
+        c.innerHTML=h;
+    }
+    function loadSideMenu(){ const current='fraud.html'; fetch('../data.json').then(r=>r.json()).then(d=>{ if(d.sections) renderSideMenu(d.sections,current); }).catch(e=>{ console.error(e); document.getElementById('sideMenuContent').innerHTML='<div>Ошибка загрузки</div>'; }); }
+    (function(){ const t=document.getElementById('menuToggle'), m=document.getElementById('sideMenu'), o=document.getElementById('overlay'), c=document.getElementById('closeMenuBtn'); function open(){ m.classList.add('open'); o.classList.add('active'); } function close(){ m.classList.remove('open'); o.classList.remove('active'); } if(t) t.addEventListener('click',open); if(c) c.addEventListener('click',close); if(o) o.addEventListener('click',close); })();
+    loadSideMenu();
+</script>
+</body>
+</html>
