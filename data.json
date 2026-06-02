@@ -16,6 +16,13 @@
     },
     {
       "num": 3,
+      "title": "Действия при взломе аккаунта",
+      "type": "simple",
+      "link": "articles/hacked.html",
+      "linkText": "Подробнее →"
+    },
+    {
+      "num": 4,
       "title": "Двухфакторная аутентификация",
       "type": "submenu",
       "platforms": [
@@ -34,7 +41,7 @@
       ]
     },
     {
-      "num": 4,
+      "num": 5,
       "title": "Приватность профиля",
       "type": "submenu",
       "platforms": [
