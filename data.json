@@ -9,6 +9,13 @@
     },
     {
       "num": 2,
+      "title": "Мошеннические схемы",
+      "type": "simple",
+      "link": "articles/fraud.html",
+      "linkText": "Подробнее →"
+    },
+    {
+      "num": 3,
       "title": "Двухфакторная аутентификация",
       "type": "submenu",
       "platforms": [
@@ -27,7 +34,7 @@
       ]
     },
     {
-      "num": 3,
+      "num": 4,
       "title": "Приватность профиля",
       "type": "submenu",
       "platforms": [
