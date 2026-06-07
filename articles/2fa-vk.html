@@ -130,8 +130,6 @@
         <h1 class="page-title">Двухфакторная аутентификация в VK</h1>
         <div class="hero-badge">ВКонтакте · Подтверждение входа · Защита аккаунта</div>
     </div>
-
-    <!-- РЕДАКТИРУЕМЫЙ БЛОК ДЛЯ АДМИНКИ -->
     <div class="editable-content">
         <div class="general-tips" style="margin-bottom: 1.5rem;">
             <h3>Что такое двухфакторная аутентификация (2FA) во ВКонтакте?</h3>
@@ -146,8 +144,17 @@
                 <h3>Пошаговая инструкция: как включить двухфакторную аутентификацию во ВКонтакте</h3>
             </div>
             <div class="card-body">
-                <div>
-                    Скриншот: Настройки → Безопасность → Подтверждение входа
+                <div class="screenshot-carousel" data-images='[
+                    "../images/vk-1.jpg",
+                    "../images/vk-2.jpg",
+                    "../images/vk-3.jpg"
+                ]'>
+                    <div class="carousel-container">
+                        <div class="carousel-track"></div>
+                        <button class="carousel-btn prev">‹</button>
+                        <button class="carousel-btn next">›</button>
+                    </div>
+                    <div class="carousel-dots"></div>
                 </div>
                 
                 <ul class="step-list">
@@ -199,7 +206,6 @@
             <p><strong>❓ Код из приложения не подходит. Что делать?</strong><br>Проверьте точное время на телефоне — для работы аутентификатора нужно синхронизировать время (в настройках телефона включите «Автоматическая установка времени»).</p>
         </div>
     </div>
-    <!-- КОНЕЦ РЕДАКТИРУЕМОГО БЛОКА -->
 </div>
 
 <script>
