@@ -142,8 +142,18 @@
                 <h3>Пошаговая инструкция: как включить облачный пароль в Telegram</h3>
             </div>
             <div class="card-body">
-                <div class="screenshot-placeholder">
-                    Скриншот
+                <!-- КАРУСЕЛЬ ДЛЯ TELEGRAM -->
+                <div class="screenshot-carousel" data-images='[
+                    "../images/tg-1.jpg",
+                    "../images/tg-2.jpg",
+                    "../images/tg-3.jpg"
+                ]'>
+                    <div class="carousel-container">
+                        <div class="carousel-track"></div>
+                        <button class="carousel-btn prev">‹</button>
+                        <button class="carousel-btn next">›</button>
+                    </div>
+                    <div class="carousel-dots"></div>
                 </div>
                 
                 <ul class="step-list">
@@ -304,6 +314,76 @@
         if (menuToggle) menuToggle.addEventListener('click', openMenu);
         if (closeBtn) closeBtn.addEventListener('click', closeMenu);
         if (overlay) overlay.addEventListener('click', closeMenu);
+    })();
+
+    // СКРИПТ КАРУСЕЛИ (добавлен)
+    (function() {
+        function initCarousels() {
+            document.querySelectorAll('.screenshot-carousel').forEach(carousel => {
+                const imagesAttr = carousel.getAttribute('data-images');
+                if (!imagesAttr) return;
+                let images;
+                try {
+                    images = JSON.parse(imagesAttr);
+                } catch(e) { return; }
+                if (!images.length) return;
+    
+                const track = carousel.querySelector('.carousel-track');
+                const dotsContainer = carousel.querySelector('.carousel-dots');
+                const prevBtn = carousel.querySelector('.prev');
+                const nextBtn = carousel.querySelector('.next');
+                let currentIndex = 0;
+    
+                function render() {
+                    track.innerHTML = '';
+                    images.forEach((src, i) => {
+                        const slide = document.createElement('div');
+                        slide.className = 'carousel-slide';
+                        const img = document.createElement('img');
+                        img.src = src;
+                        img.alt = `Скриншот ${i+1}`;
+                        slide.appendChild(img);
+                        track.appendChild(slide);
+                    });
+                    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+    
+                    dotsContainer.innerHTML = '';
+                    images.forEach((_, i) => {
+                        const dot = document.createElement('span');
+                        dot.className = 'dot' + (i === currentIndex ? ' active' : '');
+                        dot.addEventListener('click', () => {
+                            currentIndex = i;
+                            update();
+                        });
+                        dotsContainer.appendChild(dot);
+                    });
+                }
+    
+                function update() {
+                    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+                    const dots = dotsContainer.querySelectorAll('.dot');
+                    dots.forEach((dot, i) => {
+                        dot.classList.toggle('active', i === currentIndex);
+                    });
+                }
+    
+                prevBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex - 1 + images.length) % images.length;
+                    update();
+                });
+                nextBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex + 1) % images.length;
+                    update();
+                });
+    
+                render();
+            });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCarousels);
+        } else {
+            initCarousels();
+        }
     })();
 
     loadSideMenu();
